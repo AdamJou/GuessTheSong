@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "105222412060",
+    "project_id": "czyjatomelodia-f4d18",
+    "storage_bucket": "czyjatomelodia-f4d18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105222412060:android:c488d7d2c4adbaede08cd9",
+        "android_client_info": {
+          "package_name": "com.example.czyjatomelodia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "105222412060-4neqtqrpems7n9po00kdfg0lupdl1d1r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVEo_zhs1Ad5VeQykeb0aNWMd0sbYb0Po"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "105222412060-4neqtqrpems7n9po00kdfg0lupdl1d1r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

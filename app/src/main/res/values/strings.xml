@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">CzyjaToMelodia</string>
+    <string name="title_activity_login">Login</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="username_login">Nazwa użytkownika</string>
+    <string name="password_login">Hasło</string>
+    <string name="login">ZALOGUJ</string>
+    <string name="hasAcc">Masz już konto? </string>
+    <string name="logIn">Zaloguj się!</string>
+    <string name="signUp">Zarejestruj się!</string>
+    <string name="hasnotAcc">Nie masz konta? </string>
+    <string name="emailLogin">E-mail</string>
+</resources>
