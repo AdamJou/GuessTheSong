@@ -17,8 +17,6 @@
         android:layout_marginEnd="32dp"
         app:errorEnabled="true"
         android:hint="@string/emailLogin"
-        app:counterEnabled="true"
-        app:counterMaxLength="15"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +27,6 @@
             android:id="@+id/emailLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLength="16"
             android:inputType="textEmailAddress"
             tools:ignore="DuplicateClickableBoundsCheck" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -58,7 +55,7 @@
          />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/loginSubmit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

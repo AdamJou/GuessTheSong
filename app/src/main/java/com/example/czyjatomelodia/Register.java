@@ -1,8 +1,5 @@
 package com.example.czyjatomelodia;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,25 +8,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.AuthResult;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Register extends AppCompatActivity {
 
+    DatabaseReference fReference;
+    FirebaseDatabase fDatabase;
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     EditText email, nickname, password;
     Button  registerSubmit;
     TextView registerToLogIn;
     boolean valid = true;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class Register extends AppCompatActivity {
         password = findViewById(R.id.passwordRegister);
         registerSubmit = findViewById(R.id.registerSubmit);
         registerToLogIn = findViewById(R.id.registerToLogIn);
+        fDatabase = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/");
 
 
       registerSubmit.setOnClickListener(new View.OnClickListener() {
@@ -62,20 +65,28 @@ public class Register extends AppCompatActivity {
 
                   String em = email.getText().toString();
                   String p = password.getText().toString();
+                  String nick=nickname.getText().toString();
+
 
                   fAuth.createUserWithEmailAndPassword(em,p).addOnSuccessListener(authResult -> {
 
+
+
+                      String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
                       FirebaseUser user = fAuth.getCurrentUser();
+                      fReference =  fDatabase.getReference().child("Users").child(uid);
+
                       Toast.makeText(Register.this,"Utworzono konto", Toast.LENGTH_SHORT).show();
-                      DocumentReference df = fStore.collection("Users").document(user.getUid());
+                //      DocumentReference df = fStore.collection("Users").document(user.getUid());
                       Map<String,Object> userInfo = new HashMap<>();
-                      userInfo.put("Nickname", nickname.getText().toString());
-                      userInfo.put("Email", email.getText().toString());
-                      df.set(userInfo);
+                      userInfo.put("Nickname",nick);
+                     userInfo.put("Email", em);
+                    //  df.set(userInfo);
+                       fReference.setValue(userInfo);
 
 
 
-                      startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                      startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                       finish();
                   }).addOnFailureListener(e -> Toast.makeText(Register.this,"Nie udało się utworzyć konta", Toast.LENGTH_SHORT).show());
 
