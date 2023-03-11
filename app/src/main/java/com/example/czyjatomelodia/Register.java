@@ -63,9 +63,9 @@ public class Register extends AppCompatActivity {
 
               if(valid){
 
-                  String em = email.getText().toString();
-                  String p = password.getText().toString();
-                  String nick=nickname.getText().toString();
+                  String em = email.getText().toString().trim();
+                  String p = password.getText().toString().trim();
+                  String nick=nickname.getText().toString().trim();
 
 
                   fAuth.createUserWithEmailAndPassword(em,p).addOnSuccessListener(authResult -> {
@@ -84,11 +84,10 @@ public class Register extends AppCompatActivity {
                     //  df.set(userInfo);
                        fReference.setValue(userInfo);
 
-
-
-                      startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+                      Intent intent = new Intent(Register.this, HomeActivity.class);
+                      startActivity(intent);
                       finish();
-                  }).addOnFailureListener(e -> Toast.makeText(Register.this,"Nie udało się utworzyć konta", Toast.LENGTH_SHORT).show());
+                  }).addOnFailureListener(e -> Toast.makeText(Register.this,"Nie udało się utworzyć konta", Toast.LENGTH_LONG).show());
 
 
               }

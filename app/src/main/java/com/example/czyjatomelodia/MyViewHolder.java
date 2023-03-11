@@ -2,6 +2,7 @@ package com.example.czyjatomelodia;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,7 +13,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
 
     public ImageView imageView;
-    public TextView textView,uid;
+    public TextView textView;
+    public RelativeLayout cardBg;
 
 
     public MyViewHolder(@NonNull View itemView) {
@@ -22,6 +24,10 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         imageView = (ImageView) itemView.findViewById(R.id.imageView);
 
         textView = itemView.findViewById(R.id.title);
-        uid = itemView.findViewById(R.id.description);
+       // uid = itemView.findViewById(R.id.description);
+        cardBg = itemView.findViewById(R.id.cardBg);
+
     }
+
+
 }

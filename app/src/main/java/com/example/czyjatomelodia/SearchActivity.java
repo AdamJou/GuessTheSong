@@ -1,13 +1,17 @@
 package com.example.czyjatomelodia;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,20 +21,30 @@ import com.example.czyjatomelodia.Model.VideoDetails;
 import com.example.czyjatomelodia.Network.NetworkInstance;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity  {
 
-        TextView username;
-        Button btn;
+        DatabaseReference fReference;
+        TextView selectedSong;
+        Button submit,ku;
         EditText txt;
         FirebaseAuth fAuth;
         VideoDetailsAdapter videoDetailsAdapter ;
-      RecyclerView recyclerView;
-    private final String TAG = SearchActivity.class.getSimpleName();
+        RecyclerView recyclerView;
+        String nickname,isAdmin,roomID;
+        SearchView search;
+        private final String TAG = "INFORMACJE";
+         private boolean isSearchExecuted = false;
 
 
 
@@ -38,58 +52,103 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        btn = (Button)findViewById(R.id.btnYt);
-        txt=(EditText) findViewById(R.id.ytTxt);
+       // btn = (Button)findViewById(R.id.btnYt);
+      //  txt=(EditText) findViewById(R.id.ytTxt);
         fAuth = FirebaseAuth.getInstance();
        // username=findViewById(R.id.userUID);
+        selectedSong=findViewById(R.id.tvSelectedSong);
         recyclerView = (RecyclerView)findViewById(R.id.ytRecycle);
+        submit=(Button)findViewById(R.id.btnSubmitSong);
+        search=(SearchView)findViewById(R.id.ytTxt);
+        ku=findViewById(R.id.btnKurwa);
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+                                              @Override
+                                              public boolean onQueryTextSubmit(String s) {
+                                                    Search(s);
+                                                  return true;
+                                              }
+
+                                          @Override
+                                          public boolean onQueryTextChange(String newText) {
+                                              return false;
+                                          }
+                                      });
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(SearchActivity.this));
         recyclerView.hasFixedSize();
 
+        Intent intent = getIntent();
+        nickname=intent.getStringExtra("nickname");
+        Log.e(TAG, "JAKIS KURWA NICKANME " + nickname);
 
 
-
-
+        isAdmin=intent.getStringExtra("isAdmin");
+        roomID=intent.getStringExtra("id");
         FirebaseUser user = fAuth.getCurrentUser();
-      //  username.setText(user.getUid());
+
+        String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        //  username.setText(user.getUid());
 
 
-        btn.setOnClickListener(new View.OnClickListener() {
+        ku.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Search();
+                fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
+                        .getReference("Rooms").child(roomID).child("Players").child(nickname);
+
+
+                Map<String, Object> playerInfo = new HashMap<>();
+                playerInfo.put("songID", "_JZom_gVfuw");
+                playerInfo.put("songName", "The Notorious B.I.G. - Juicy (Official Video) [4K]");
+
+                fReference.updateChildren(playerInfo);
+
+                Toast.makeText(SearchActivity.this, nickname, Toast.LENGTH_SHORT).show();
+                submit.setEnabled(false);
+
+                selectedSong.setText("The Notorious B.I.G. - Juicy (Official Video) [4K]");
+                if (isAdmin.equals("true")) {
+                    Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname",nickname)
+                            .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
+                    startActivity(intent);
+                    finish();
+
+                }else{
+
+                    isSearchExecuted=true;
+                    Intent intent = new Intent(getApplicationContext(), VoteActivity.class).putExtra("nickname",nickname).
+                            putExtra("roomID",roomID);
+                    startActivity(intent);
+
+                }
             }
         });
 
 
-
-
-
-
-
-
     }
 
-    private void Search(){
+    private void Search(String query){
 
+        isSearchExecuted = true;
+        String key2="AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
         String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
-       String val = txt.getText().toString();
-        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,"AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk","relevance", "10");
+       String val = query;
+        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,key2,"relevance",1);
 
 
         videoModelCall.enqueue(new Callback<VideoDetails>() {
             @Override
             public void onResponse( Call<VideoDetails> call, Response<VideoDetails> response) {
-                //  assert response.body() != null;
+
                 assert response.body() != null;
                 setRecycleView(response.body().getItems());
             }
 
             @Override
             public void onFailure(@NonNull Call<VideoDetails> call, Throwable t) {
-
+                isSearchExecuted = false;
             }
         });
     }
@@ -101,6 +160,53 @@ public class SearchActivity extends AppCompatActivity {
     private void setRecycleView(Item[] items) {
         VideoDetailsAdapter myAdapter = new VideoDetailsAdapter(SearchActivity.this,items);
 
+        myAdapter.setOnItemClickListener(new VideoDetailsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                String id = items[position].getId().getVideoId();
+                String title = items[position].getSnippet().getTitle();
+              //  Toast.makeText(SearchActivity.this, id, Toast.LENGTH_SHORT).show();
+                submit.setVisibility(View.VISIBLE);
+
+                submit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
+                                .getReference("Rooms").child(roomID).child("Players").child(nickname);
+
+
+                      // Map<String, Object> songInfo = new HashMap<>();
+                      //  songInfo.put("songID", id);
+
+                        Log.i(TAG, id);
+                        Log.i(TAG, roomID);
+                        Log.i(TAG, nickname);
+
+                        Map<String, Object> playerInfo = new HashMap<>();
+                        playerInfo.put("songID", id);
+                        playerInfo.put("songName", title);
+
+                        fReference.updateChildren(playerInfo);
+
+                        Toast.makeText(SearchActivity.this, nickname, Toast.LENGTH_SHORT).show();
+                        submit.setEnabled(false);
+                        myAdapter.setSelected(true);
+                        selectedSong.setText(title);
+
+                        if (isAdmin.equals("true")) {
+                            Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname",nickname)
+                                    .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
+                            startActivity(intent);
+                            finish();
+
+                        }
+
+                    }
+                });
+
+
+            }
+        });
 
         RecyclerView.LayoutManager  lm = new LinearLayoutManager(SearchActivity.this);
         recyclerView.setLayoutManager(lm);
@@ -111,58 +217,6 @@ public class SearchActivity extends AppCompatActivity {
     }
 
 
-/*
-    public void Search(){
-
-        GetDatService datService = NetworkInstance.getRetrofit().create(GetDatService.class);
-
-
-        Call<VideoDetails> videoDetailsRequest = datService.getVideoData("snippet",val,"AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk","relevance","10");
-
-        videoDetailsRequest.enqueue(new Callback<VideoDetails>() {
-            @Override
-            public void onResponse(Call<VideoDetails> call, Response<VideoDetails> response) {
-                if(response.isSuccessful()){
-                    if(response.body()!=null){
-                        Log.e(TAG, "Response Succes");
-
-                        //  Toast.makeText(MainActivity.this, "LADOWANIE", Toast.LENGTH_LONG).show();
-
-                       //items = response.body().getItems();
-
-                        setUpRecyclerView(response.body().getItems());
-
-
-                    }
-                }
-
-            }
-
-
-
-            @Override
-            public void onFailure(Call<VideoDetails> call, Throwable t) {
-
-                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e(TAG.concat(" API REQUEST FAILED "), t.getMessage());
-            }
-        });
-
-
-    }*/
-/*
-
-   public void setUpRecyclerView(List<Item> items) {
-
-        videoDetailsAdapter = new VideoDetailsAdapter(MainActivity.this,items);
-        RecyclerView.LayoutManager  lm = new LinearLayoutManager(MainActivity.this);
-        recyclerView.setLayoutManager(lm);
-        recyclerView.setAdapter(videoDetailsAdapter);
-
-
-    }
-
-*/
 
 
 

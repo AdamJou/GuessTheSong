@@ -1,11 +1,8 @@
 package com.example.czyjatomelodia.Model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 public class Default {
 
-
+/*
     @SerializedName("url")
     @Expose
     private String url;
@@ -38,5 +35,5 @@ public class Default {
     public void setHeight(Integer height){
         this.height=height;
     }
-
+*/
 }

@@ -14,7 +14,8 @@ public interface GetDatService {
             @Query("q") String q,
             @Query("key") String key,
             @Query("order") String order,
-            @Query("maxResults") String maxResult
+            @Query("maxResults") int maxResult
+
 
 
     );

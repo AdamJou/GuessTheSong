@@ -11,4 +11,6 @@
     <string name="signUp">Zarejestruj się!</string>
     <string name="hasnotAcc">Nie masz konta? </string>
     <string name="emailLogin">E-mail</string>
+    <string name="roomName">Pokój gracza: </string>
+    <string name="key">KOD: </string>
 </resources>
