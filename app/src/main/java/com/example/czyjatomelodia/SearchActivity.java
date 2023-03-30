@@ -74,7 +74,7 @@ public class SearchActivity extends AppCompatActivity {
 
     private void Search(){
 
-        String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
+       
        String val = txt.getText().toString();
         Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,"<API_KEY>","relevance", "10");
 
