@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".PlayerList">
 
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playerList"
         android:layout_width="match_parent"
@@ -79,4 +81,7 @@
             android:layout_weight="2"
             android:text="Poczekaj, aż DJ wybierze utwór.." />
     </LinearLayout>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

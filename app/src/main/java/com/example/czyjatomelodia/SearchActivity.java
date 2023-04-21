@@ -1,11 +1,13 @@
 package com.example.czyjatomelodia;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,14 +39,16 @@ public class SearchActivity extends AppCompatActivity  {
         DatabaseReference fReference;
         TextView selectedSong;
         Button submit,ku;
-        EditText txt;
         FirebaseAuth fAuth;
-        VideoDetailsAdapter videoDetailsAdapter ;
         RecyclerView recyclerView;
         String nickname,isAdmin,roomID;
         SearchView search;
+
+
         private final String TAG = "INFORMACJE";
-         private boolean isSearchExecuted = false;
+        private boolean isSearchExecuted = false;
+        private ProgressDialog progressDialog;
+        private Handler uiHandler;
 
 
 
@@ -56,16 +60,24 @@ public class SearchActivity extends AppCompatActivity  {
       //  txt=(EditText) findViewById(R.id.ytTxt);
         fAuth = FirebaseAuth.getInstance();
        // username=findViewById(R.id.userUID);
+
+
+
         selectedSong=findViewById(R.id.tvSelectedSong);
         recyclerView = (RecyclerView)findViewById(R.id.ytRecycle);
         submit=(Button)findViewById(R.id.btnSubmitSong);
         search=(SearchView)findViewById(R.id.ytTxt);
         ku=findViewById(R.id.btnKurwa);
+        progressDialog = new ProgressDialog(SearchActivity.this);
+        progressDialog.setMessage("Ładowanie..");
+        progressDialog.setCancelable(false);
+        uiHandler = new Handler(Looper.getMainLooper());
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
                                               @Override
                                               public boolean onQueryTextSubmit(String s) {
                                                     Search(s);
+                                                  showDialog();
                                                   return true;
                                               }
 
@@ -131,33 +143,52 @@ public class SearchActivity extends AppCompatActivity  {
 
     private void Search(String query){
 
-        isSearchExecuted = true;
+
+
+
         String key2="AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
         String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
        String val = query;
         Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,key2,"relevance",1);
 
-
+        isSearchExecuted = false;
         videoModelCall.enqueue(new Callback<VideoDetails>() {
             @Override
             public void onResponse( Call<VideoDetails> call, Response<VideoDetails> response) {
 
                 assert response.body() != null;
-                setRecycleView(response.body().getItems());
+
+                uiHandler.post(() -> setRecycleView(response.body().getItems()));
+                dismissDialog();
+
+
+
+
+
             }
 
             @Override
             public void onFailure(@NonNull Call<VideoDetails> call, Throwable t) {
-                isSearchExecuted = false;
+                //isSearchExecuted = false;
+                dismissDialog();
+
             }
         });
     }
 
 
 
+    private void showDialog() {
+        progressDialog.show();
+    }
+    private void dismissDialog() {
+        progressDialog.dismiss();
+    }
 
 
     private void setRecycleView(Item[] items) {
+
+
         VideoDetailsAdapter myAdapter = new VideoDetailsAdapter(SearchActivity.this,items);
 
         myAdapter.setOnItemClickListener(new VideoDetailsAdapter.OnItemClickListener() {
@@ -166,6 +197,7 @@ public class SearchActivity extends AppCompatActivity  {
                 String id = items[position].getId().getVideoId();
                 String title = items[position].getSnippet().getTitle();
               //  Toast.makeText(SearchActivity.this, id, Toast.LENGTH_SHORT).show();
+
                 submit.setVisibility(View.VISIBLE);
 
                 submit.setOnClickListener(new View.OnClickListener() {
@@ -214,9 +246,8 @@ public class SearchActivity extends AppCompatActivity  {
        recyclerView.setVisibility(View.VISIBLE);
 
 
+
     }
-
-
 
 
 

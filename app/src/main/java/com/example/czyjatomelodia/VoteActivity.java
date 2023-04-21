@@ -26,12 +26,16 @@ import java.util.HashSet;
 public class VoteActivity extends AppCompatActivity {
 
     String curretPlayerNickname,roomID;
+    String previousSong="null";
+    String selectedPlayerNickname ="null";
     TextView songTitleTv,roundNumberTv;
     RecyclerView recyclerView;
     PlayerAdapter playerAdapter;
     ArrayList<Player> items;
+    InfoDialog infoDialog;
     Button confirmPickBtn;
     public boolean isDataLoaded = false;
+    public boolean isClicked = false;
     private static final String TAG = "GLOSOWANSKOOOOOO: ";
     private int selectedPosition = RecyclerView.NO_POSITION;
 
@@ -49,6 +53,7 @@ public class VoteActivity extends AppCompatActivity {
         confirmPickBtn=findViewById(R.id.confirmPickBtn);
 
 
+        infoDialog = new InfoDialog(VoteActivity.this);
         recyclerView = findViewById(R.id.playerList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -69,7 +74,7 @@ public class VoteActivity extends AppCompatActivity {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     String name = dataSnapshot.getKey();
                     if (!userNames.contains(name) ) {
-
+                        //&& !name.equals(curretPlayerNickname)
                         // sprawdzamy, czy użytkownik już istnieje na liście
                         userNames.add(name);
                         Player player = new Player(name);
@@ -101,32 +106,7 @@ public class VoteActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String status = dataSnapshot.getValue(String.class);
                 if (status.equals("playing")) {
-
-                    Log.e(TAG, "PLEJING DZIALA ODZIWO");
-                    DatabaseReference roundRef =
-                            FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Round1").child("Current");
-
-                    roundRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                String currentValue = dataSnapshot.getValue(String.class);
-                                Log.d("FirebaseManager", "Wartość z pola 'Current': " + currentValue);
-                                songTitleTv.setText(currentValue);
-                                roundNumberTv.setText("Runda 1");
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.d("FirebaseManager", "Błąd odczytu wartości z pola 'Current': " + databaseError.getMessage());
-                        }
-                    });
-
-
-
-
-
+                    infoDialog.closeDialog();
                 }
             }
 
@@ -143,17 +123,97 @@ public class VoteActivity extends AppCompatActivity {
         playerAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedPlayerNickname = items.get(position).getName();
+                if(!isClicked){
+                    selectedPlayerNickname = items.get(position).getName();
 
-                Toast.makeText(VoteActivity.this, selectedPlayerNickname, Toast.LENGTH_LONG).show();
+                    Toast.makeText(VoteActivity.this, selectedPlayerNickname, Toast.LENGTH_LONG).show();
 
-                // Zmiana koloru klikniętego elementu na czerwony
-                playerAdapter.setBackgroundForPosition(selectedPosition, false); // Przywrócenie poprzedniemu elementowi domyślnego koloru
-                playerAdapter.setBackgroundForPosition(position, true); // Ustawienie klikniętemu elementowi czerwonego koloru
-                selectedPosition = position; // Aktualizacja pozycji klikniętego elementu
-                check(selectedPlayerNickname);
+                    // Zmiana koloru klikniętego elementu na czerwony
+                    playerAdapter.setBackgroundForPosition(selectedPosition, false); // Przywrócenie poprzedniemu elementowi domyślnego koloru
+                    playerAdapter.setBackgroundForPosition(position, true); // Ustawienie klikniętemu elementowi czerwonego koloru
+                    selectedPosition = position; // Aktualizacja pozycji klikniętego elementu
+
+                    confirmPickBtn.setVisibility(View.VISIBLE);
+                    confirmPickBtn.setEnabled(true);
+                }else{
+                    Toast.makeText(VoteActivity.this, "Nie możesz juz zmienic swojego wyboru!", Toast.LENGTH_LONG).show();
+
+                }
+
             }
         });
+
+        // POBIERANIE WARTOSCI CURRENT
+
+        DatabaseReference roundRef =
+                FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Round1").child("Current");
+
+        roundRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String currentValue = dataSnapshot.getValue(String.class);
+
+                    if(!currentValue.equals(previousSong)){
+                        refreshUI();
+                    }
+                    previousSong=currentValue;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("FirebaseManager", "Błąd odczytu wartości z pola 'Current': " + databaseError.getMessage());
+            }
+        });
+
+
+        confirmPickBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isClicked=true;
+                check(selectedPlayerNickname);
+              //  playerAdapter.setOnItemClickListener(null);
+                confirmPickBtn.setEnabled(false);
+            }
+        });
+
+
+        infoDialog.loadDialog();
+    }
+
+    private void refreshUI() {
+
+        DatabaseReference currentRef =
+                FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Round1").child("Current");
+
+
+
+        currentRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    String value = dataSnapshot.getValue(String.class);
+                    songTitleTv.setText(value);
+                    roundNumberTv.setText("Runda 1");
+                  //  updateRecyclerView();
+                    confirmPickBtn.setVisibility(View.INVISIBLE);
+                    isClicked=false;
+                } else {
+
+                    Log.d("Firebase", "Brak wartości w bazie danych");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                Log.d("Firebase", "Błąd odczytu danych z Firebase: " + databaseError.getMessage());
+            }
+        });
+
+
 
 
     }
