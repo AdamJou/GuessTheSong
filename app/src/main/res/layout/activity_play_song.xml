@@ -7,48 +7,51 @@
     tools:context=".PlaySongActivity">
 
 
-        <com.google.android.youtube.player.YouTubePlayerView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:id="@+id/youtube_player_view"/>
-
-
-
-    <TextView
-        android:id="@+id/test"
+    <com.google.android.youtube.player.YouTubePlayerView
+        android:id="@+id/youtube_player_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+       />
+
 
     <Button
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/test"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="46dp"
-        android:text="Wstecz"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="155dp"
+        android:layout_marginBottom="29dp"
+        android:text="Potwierdź"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/test" />
+        />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/playerPicksRecycle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView2"
+
+        android:layout_alignParentStart="true"
+
+        android:layout_alignParentEnd="true"
+
+        />
 
     <TextView
-        android:id="@+id/testowy"
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/test"
-        android:layout_alignBottom="@+id/btnBack"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="221dp"
-        android:layout_marginBottom="15dp"
-        android:text="TextView" />
+        android:layout_below="@+id/youtube_player_view"
+        android:layout_centerHorizontal="true"
+
+        android:text="Poczekaj, aż wszyscy gracze zagłosują" />
 </RelativeLayout>

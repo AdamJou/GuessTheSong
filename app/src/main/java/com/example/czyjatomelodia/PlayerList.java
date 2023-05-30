@@ -67,8 +67,7 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
 
         linearLayout = findViewById(R.id.playerLinearLayout);
         recyclerView = findViewById(R.id.playerList);
-        fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("Rooms").child(id).child("Players");
+        fReference = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(id).child("Players");
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         items = new ArrayList<>();
@@ -91,7 +90,7 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
             }
         });
 
-
+        //Fill recycle
         fReference.addValueEventListener(new ValueEventListener() {
             HashSet<String> userNames = new HashSet<>();
 
@@ -125,17 +124,11 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
                 // obsługa błędu
             }
-
-
-
-
-
         });
 
-        fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("Rooms").child(id).child("Status");
 
-
+        //Change game status, start Searching
+        fReference = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(id).child("Status");
         fReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -216,10 +209,6 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
         }
 
     }
-    public void setBackgroundForPlayer(int position, int color) {
-        Player p = items.get(position);
-        p.setBackgroundColor(color);
-        playerAdapter.notifyItemChanged(position);
-    }
+
 
 }

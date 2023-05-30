@@ -1,9 +1,13 @@
 package com.example.czyjatomelodia;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,12 +32,15 @@ import java.util.Objects;
 public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDialogListener {
 
 
+    private MediaPlayer mediaPlayer;
     DatabaseReference fReference;
     FirebaseDatabase fDatabase;
     FirebaseAuth fAuth;
-    Button create, join,logout;
+    ImageView logo;
+    Button create, join, logout;
     TextView username;
     String nick;
+    Animation fade, leftfade,rightfade;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +50,16 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
         username = findViewById(R.id.usernameTxt);
         create = findViewById(R.id.createGameBtn);
         join = findViewById(R.id.joinGameBtn);
-        logout=findViewById(R.id.btnLogout);
+        logout = findViewById(R.id.btnLogout);
+        logo=findViewById(R.id.logo);
 
-
-
+        mediaPlayer = MediaPlayer.create(this, R.raw.intro);
+      //  mediaPlayer.start();
 
         FirebaseUser user = fAuth.getCurrentUser();
-
+        leftfade = AnimationUtils.loadAnimation(this, R.anim.leftfade);
+        rightfade = AnimationUtils.loadAnimation(this, R.anim.rightfade);
+        fade = AnimationUtils.loadAnimation(this, R.anim.fadeanim);
         //   username.setText(user.getUid());
         String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         //  fDatabase = FirebaseDatabase.getInstance();
@@ -66,15 +76,17 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
        });*/
 
 
-
+        join.startAnimation(rightfade);
+        create.startAnimation(leftfade);
+        logout.startAnimation(fade);
+        logo.startAnimation(fade);
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(),Login.class));
+                startActivity(new Intent(getApplicationContext(), Login.class));
             }
         });
-
 
 
         fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/").getReference("Users");
@@ -103,6 +115,7 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
                 DatabaseReference myRef = database.getReference("Rooms").child(nick + "1");
                 Map<String, Object> gameInfo = new HashMap<>();
                 gameInfo.put("Status", "pending");
+                gameInfo.put("NumberOfRounds", 0);
                 myRef.setValue(gameInfo);
 
                 //Player info
@@ -113,14 +126,14 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
                 playerInfo.put("Score", 0);
                 playerInfo.put("isAdmin", "true");
                 playerInfo.put("songID", "null");
+                playerInfo.put("selected", "false");
                 playerInfo.put("songName", "null");
 
 
                 myRef.setValue(playerInfo);
 
-                startActivity(new Intent(getApplicationContext(),PlayerList.class).putExtra("roomID",nick+1)
-                        .putExtra("isAdmin","true").putExtra("nickname",nick));
-
+                startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", nick + 1)
+                        .putExtra("isAdmin", "true").putExtra("nickname", nick));
 
 
             }
@@ -164,7 +177,6 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
         myRef.addListenerForSingleValueEvent(eventListener);
 
 
-
         if (!id.isEmpty()) {
 
 
@@ -177,20 +189,18 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
                         DataSnapshot snapshot = task.getResult();
 
 
-
-
-
                         if (locationNames.contains(id)) {
                             Map<String, Object> playerInfo = new HashMap<>();
                             playerInfo.put("Score", 0);
                             playerInfo.put("isAdmin", "false");
                             playerInfo.put("songID", "null");
                             playerInfo.put("songName", "null");
+                            playerInfo.put("selected", "false");
 
                             myRef.child(id).child("Players").child(nick).setValue(playerInfo);
                             try {
-                                startActivity(new Intent(getApplicationContext(),PlayerList.class).putExtra("roomID",id)
-                                        .putExtra("isAdmin","false").putExtra("nickname",nick));
+                                startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", id)
+                                        .putExtra("isAdmin", "false").putExtra("nickname", nick));
 
                             } catch (Exception e) {
 
@@ -215,6 +225,15 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
 
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }
 

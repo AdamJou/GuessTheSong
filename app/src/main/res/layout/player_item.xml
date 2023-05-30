@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardElevation="8dp"
@@ -27,13 +28,16 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:padding="8dp"
-                android:drawablePadding="24dp"
+                android:gravity="start|center_vertical"
                 android:text="Player"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_centerHorizontal="true"
+                android:drawablePadding="-36dp"
                 android:textSize="18dp"
+                android:drawableTint="@color/colorPositive"
+                android:background="@drawable/cornersempty"
+                android:backgroundTint="@color/background_default"
                 android:textStyle="bold"
-              >
+                tools:ignore="RtlCompat">
             </TextView>
 
         </LinearLayout>

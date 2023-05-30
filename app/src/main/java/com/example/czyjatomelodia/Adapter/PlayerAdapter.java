@@ -1,6 +1,8 @@
 package com.example.czyjatomelodia.Adapter;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,15 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
     private RecyclerView recyclerView;
     private AdapterView.OnItemClickListener onItemClickListener;
     private int selectedPosition = RecyclerView.NO_POSITION;
+
+
+
+
+    public void clearSelection() {
+        int previousSelectedPosition = selectedPosition;
+        selectedPosition = RecyclerView.NO_POSITION;
+        notifyItemChanged(previousSelectedPosition);
+    }
 
     public PlayerAdapter(Context context, ArrayList<Player> items, RecyclerView recyclerView ) {
         this.context = context;
@@ -52,6 +63,17 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
         holder.playerName.setText(p.getName());
 
 
+        int backgroundColor = p.getBackgroundColor();
+
+
+        Drawable drawable = p.getDrawable();
+        if (drawable != null) {
+            holder.playerName.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+        } else {
+            holder.playerName.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        }
+
+
         if (holder.getAdapterPosition() == selectedPosition) {
             holder.linearLayout.setBackgroundColor(0xFFFF0000); // kolor czerwony
 
@@ -60,6 +82,15 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
             holder.linearLayout.setBackgroundColor(0xFFFFFFFF); // kolor biały
 
         }
+
+        if(p.isCorrect()){
+            holder.linearLayout.setBackgroundColor(backgroundColor);
+            holder.playerName.setTextSize(25);
+            holder.playerName.setTypeface(null, Typeface.BOLD);
+
+        }
+
+
 
         if (onItemClickListener != null) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +104,10 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
                 }
             });
         }
+
+
+
+
     }
 
     @Override

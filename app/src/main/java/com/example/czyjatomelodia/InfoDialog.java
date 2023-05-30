@@ -34,6 +34,7 @@ public class InfoDialog {
     public void closeDialog(){
         if (dialog != null && dialog.isShowing()) { // sprawdzenie, czy dialog istnieje i jest widoczny
             dialog.dismiss();
+
         }
     }
 

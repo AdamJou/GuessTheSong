@@ -38,7 +38,7 @@ public class SearchActivity extends AppCompatActivity  {
 
         DatabaseReference fReference;
         TextView selectedSong;
-        Button submit,ku;
+        Button submit,ku,kd;
         FirebaseAuth fAuth;
         RecyclerView recyclerView;
         String nickname,isAdmin,roomID;
@@ -68,10 +68,14 @@ public class SearchActivity extends AppCompatActivity  {
         submit=(Button)findViewById(R.id.btnSubmitSong);
         search=(SearchView)findViewById(R.id.ytTxt);
         ku=findViewById(R.id.btnKurwa);
+        kd=findViewById(R.id.btnKd);
         progressDialog = new ProgressDialog(SearchActivity.this);
         progressDialog.setMessage("Ładowanie..");
         progressDialog.setCancelable(false);
         uiHandler = new Handler(Looper.getMainLooper());
+
+
+
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
                                               @Override
@@ -93,17 +97,21 @@ public class SearchActivity extends AppCompatActivity  {
 
         Intent intent = getIntent();
         nickname=intent.getStringExtra("nickname");
-        Log.e(TAG, "JAKIS KURWA NICKANME " + nickname);
+
 
 
         isAdmin=intent.getStringExtra("isAdmin");
         roomID=intent.getStringExtra("id");
+        FirebaseManager.getInstance().clearSongDataForAllPlayers(roomID);
         FirebaseUser user = fAuth.getCurrentUser();
 
+
+        Log.e(TAG," CHECK IF ADMIN " + isAdmin);
         String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         //  username.setText(user.getUid());
 
 
+        
         ku.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,13 +141,55 @@ public class SearchActivity extends AppCompatActivity  {
                     Intent intent = new Intent(getApplicationContext(), VoteActivity.class).putExtra("nickname",nickname).
                             putExtra("roomID",roomID);
                     startActivity(intent);
+                    finish();
 
                 }
             }
         });
 
 
+        kd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+
+                fReference =  FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players").child(nickname);
+
+
+                Map<String, Object> playerInfo = new HashMap<>();
+                playerInfo.put("songID", "DzfaCVQfYXU");
+                playerInfo.put("songName", "SENTINO - Niebieski Ptak");
+
+                fReference.updateChildren(playerInfo);
+
+                Toast.makeText(SearchActivity.this, nickname, Toast.LENGTH_SHORT).show();
+                submit.setEnabled(false);
+
+                selectedSong.setText("The Notorious B.I.G. - Juicy (Official Video) [4K]");
+                if (isAdmin.equals("true")) {
+                    Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname",nickname)
+                            .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
+                    startActivity(intent);
+                    finish();
+
+                }else{
+
+                    isSearchExecuted=true;
+                    Intent intent = new Intent(getApplicationContext(), VoteActivity.class).putExtra("nickname",nickname).
+                            putExtra("roomID",roomID);
+                    startActivity(intent);
+
+                }
+            }
+        });
+
+
+
     }
+
+
+
 
     private void Search(String query){
 
@@ -231,6 +281,11 @@ public class SearchActivity extends AppCompatActivity  {
                             startActivity(intent);
                             finish();
 
+                        }else{
+                            Intent intent = new Intent(SearchActivity.this, VoteActivity.class).putExtra("nickname",nickname)
+                                    .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
+                            startActivity(intent);
+                            finish();
                         }
 
                     }

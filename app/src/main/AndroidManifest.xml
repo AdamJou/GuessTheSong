@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CzyjaToMelodia">
         <activity
+            android:name=".ResultActivity"
+            android:exported="false" />
+        <activity
             android:name=".VoteActivity"
             android:exported="false" />
         <activity
