@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -37,7 +38,7 @@ public class ResultActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<Player> items;
     ImageButton ready;
-    Button next, previous;
+    Button next, previous,scoreboard;
     int current = 1;
     int nor = Integer.MAX_VALUE;
 
@@ -47,6 +48,7 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        scoreboard=findViewById(R.id.btnScoreboard);
         next = findViewById(R.id.btnNext);
         tvReady = findViewById(R.id.tvReady);
         previous = findViewById(R.id.btnPrevious);
@@ -59,30 +61,21 @@ public class ResultActivity extends AppCompatActivity {
          roomID=intent.getStringExtra("roomID");
         //roomID = "g1";
 
-        FirebaseManager.getInstance().checkIfCurrentUserIsAdmin(roomID, new FirebaseManager.OnIsAdminCallback() {
-            @Override
-            public void onIsAdmin(String isAdmin) {
+        FirebaseManager.getInstance().checkIfCurrentUserIsAdmin(roomID, isAdmin -> {
 
-                admin = isAdmin;
-                FirebaseManager.getInstance().setPlayingStatusInRoom(roomID, "waiting");
-            }
+            admin = isAdmin;
+            FirebaseManager.getInstance().setPlayingStatusInRoom(roomID, "waiting");
         });
 
 
-        FirebaseManager.getInstance().checkIfAllPlayersWereDJs(roomID, new FirebaseManager.OnAllPlayersDJsCallback() {
-            @Override
-            public void onAllPlayersDJs() {
+        FirebaseManager.getInstance().checkIfAllPlayersWereDJs(roomID, () -> {
 
-                tvReady.setText("KONIEC GRY! Kiknij aby przejsc do menu!");
-                ready.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(ResultActivity.this, HomeActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-            }
+            tvReady.setText("KONIEC GRY! Kiknij aby przejsc do menu!");
+            ready.setOnClickListener(v -> {
+                Intent intent1 = new Intent(ResultActivity.this, HomeActivity.class);
+                startActivity(intent1);
+                finish();
+            });
         });
 
         getRoundNumber();
@@ -93,94 +86,89 @@ public class ResultActivity extends AppCompatActivity {
 
 
 
+        scoreboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseManager.getInstance().getAllPlayersWithPoints(roomID, new FirebaseManager.OnPlayersWithPointsCallback() {
+                    @Override
+                    public void onSuccess(List<Player> playersWithPoints) {
+
+                        ScoreboardDialog.show(ResultActivity.this, playersWithPoints);
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Tutaj możesz obsłużyć ewentualne błędy
+                    }
+                });
+            }
+        });
+
 
         FirebaseManager firebaseManager = FirebaseManager.getInstance();
-        firebaseManager.startListeningForPlayerChanges(roomID, new FirebaseManager.OnPlayersReadyCallback() {
+        firebaseManager.startListeningForPlayerChanges(roomID, () -> firebaseManager.getNickname("Users", new FirebaseManager.OnNicknameCallback() {
             @Override
-            public void onPlayersReady() {
-                firebaseManager.getNickname("Users", new FirebaseManager.OnNicknameCallback() {
-                    @Override
-                    public void onSuccess(String nickname) {
-                        FirebaseManager.getInstance().setNumberOfRounds(roomID);
-                        FirebaseManager.getInstance().setCurrentSong(roomID);
+            public void onSuccess(String nickname) {
+                FirebaseManager.getInstance().setNumberOfRounds(roomID);
+                FirebaseManager.getInstance().setCurrentSong(roomID);
 
-                        firebaseManager.deleteRoundNodes(roomID);
-                        endRound(nickname);
-                    }
+                firebaseManager.deleteRoundNodes(roomID);
+                endRound(nickname);
+            }
 
-                    @Override
-                    public void onError(String errorMessage) {
-
-                    }
-                });
+            @Override
+            public void onError(String errorMessage) {
 
             }
+        }));
+
+
+        next.setOnClickListener(v -> {
+            current++;
+            setResults();
+
+            updateButtons(current, nor);
 
 
         });
 
+        previous.setOnClickListener(v -> {
+            --current;
 
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                current++;
-                setResults();
-
-                updateButtons(current, nor);
+            setResults();
+            updateButtons(current, nor);
 
 
-            }
         });
 
-        previous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                --current;
+        ready.setOnClickListener(v -> {
 
-                setResults();
-                updateButtons(current, nor);
+            FirebaseManager.getInstance().checkIfAllPlayersWereDJs(roomID, () -> {
 
-
-            }
-        });
-
-        ready.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                FirebaseManager.getInstance().checkIfAllPlayersWereDJs(roomID, new FirebaseManager.OnAllPlayersDJsCallback() {
-                    @Override
-                    public void onAllPlayersDJs() {
-
-                        tvReady.setText("KONIEC GRY! Kiknij aby przejsc do menu!");
-                        ready.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(ResultActivity.this, HomeActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
-                    }
+                tvReady.setText("KONIEC GRY! Kiknij aby przejsc do menu!");
+                ready.setOnClickListener(v1 -> {
+                    Intent intent12 = new Intent(ResultActivity.this, HomeActivity.class);
+                    startActivity(intent12);
+                    finish();
                 });
+            });
 
 
-                ready.getDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
-                ready.setClickable(false);
-                tvReady.setText("Potwierdzono gotowość");
-                FirebaseManager.getInstance().getNickname("Users", new FirebaseManager.OnNicknameCallback() {
-                    @Override
-                    public void onSuccess(String nickname) {
-                        FirebaseManager.getInstance().setReady(roomID, nickname);
-                    }
+            ready.getDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
+            ready.setClickable(false);
+            tvReady.setText("Potwierdzono gotowość");
+            FirebaseManager.getInstance().getNickname("Users", new FirebaseManager.OnNicknameCallback() {
+                @Override
+                public void onSuccess(String nickname) {
+                    FirebaseManager.getInstance().setReady(roomID, nickname);
+                }
 
-                    @Override
-                    public void onError(String errorMessage) {
+                @Override
+                public void onError(String errorMessage) {
 
-                    }
-                });
+                }
+            });
 
-            }
         });
 
 
@@ -247,11 +235,7 @@ public class ResultActivity extends AppCompatActivity {
             previous.setEnabled(true);
         }
 
-        if (current == numberOfRounds) {
-            next.setEnabled(false);
-        } else {
-            next.setEnabled(true);
-        }
+        next.setEnabled(current != numberOfRounds);
     }
 
     private void setResults() {

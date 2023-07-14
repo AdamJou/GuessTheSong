@@ -12,9 +12,19 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:forceDarkAllowed" tools:targetApi="q"> false</item>
+        <item name="android:fontFamily">@font/poppins</item>
+
 
     </style>
 
+    <style name="BoldTextStyle">
+        <item name="android:fontFamily">@font/poppinsbold</item>
+    </style>
+
+    <style name="ItalicTextStyle">
+        <item name="android:fontFamily">@font/poppinsitalic</item>
+    </style>
     <style name="Theme.CzyjaToMelodia.Fullscreen" parent="Theme.CzyjaToMelodia">
         <item name="android:actionBarStyle">
             @style/Widget.Theme.CzyjaToMelodia.NoActionBar.Fullscreen

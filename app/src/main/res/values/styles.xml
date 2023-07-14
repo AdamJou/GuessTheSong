@@ -2,11 +2,35 @@
 
     <style name="Widget.Theme.CzyjaToMelodia.NoActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonStyle">@style/AppButtonStyle</item>
 
+    </style>
+
+
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+
+            <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+
+
+
+
+    </style>
+
+    <style name="AppTheme"  parent="Widget.AppCompat.ActionBar">
+        <!-- ... Inne atrybuty stylu ... -->
+
+        <item name="android:buttonStyle">@style/AppButtonStyle</item>
+    </style>
+
+
+    <style name="AppButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/cornersempty</item>
     </style>
 
     <style name="Widget.Theme.CzyjaToMelodia.ButtonBar.Fullscreen" parent="">
         <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonStyle">@style/AppButtonStyle</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 

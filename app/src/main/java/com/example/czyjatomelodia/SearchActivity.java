@@ -67,8 +67,8 @@ public class SearchActivity extends AppCompatActivity  {
         recyclerView = (RecyclerView)findViewById(R.id.ytRecycle);
         submit=(Button)findViewById(R.id.btnSubmitSong);
         search=(SearchView)findViewById(R.id.ytTxt);
-        ku=findViewById(R.id.btnKurwa);
-        kd=findViewById(R.id.btnKd);
+       // ku=findViewById(R.id.btnKurwa);
+       // kd=findViewById(R.id.btnKd);
         progressDialog = new ProgressDialog(SearchActivity.this);
         progressDialog.setMessage("Ładowanie..");
         progressDialog.setCancelable(false);
@@ -111,7 +111,7 @@ public class SearchActivity extends AppCompatActivity  {
         //  username.setText(user.getUid());
 
 
-        
+        /*
         ku.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -184,7 +184,7 @@ public class SearchActivity extends AppCompatActivity  {
             }
         });
 
-
+*/
 
     }
 
@@ -199,7 +199,7 @@ public class SearchActivity extends AppCompatActivity  {
         String key2="AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
         String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
        String val = query;
-        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,key2,"relevance",1);
+        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,key2,"relevance",10);
 
         isSearchExecuted = false;
         videoModelCall.enqueue(new Callback<VideoDetails>() {

@@ -20,4 +20,5 @@
         <attr name="pwContourColor" format="color"/>
         <attr name="pwContourSize" format="dimension"/>
     </declare-styleable>
+
 </resources>

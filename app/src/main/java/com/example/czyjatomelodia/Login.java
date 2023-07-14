@@ -23,7 +23,7 @@ public class Login extends AppCompatActivity {
     Boolean valid = true;
     Button loginSubmit;
     TextView loginToSignUp;
-    FirebaseAuth fAuth;
+    private FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

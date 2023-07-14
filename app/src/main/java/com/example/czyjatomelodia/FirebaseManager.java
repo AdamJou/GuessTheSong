@@ -122,6 +122,38 @@ public class FirebaseManager {
 
 
 
+    public void getPlayersWithPoints(String roomID, final OnPlayersWithPointsCallback callback) {
+        DatabaseReference playersRef = databaseReference.child("Rooms").child(roomID).child("Players");
+        playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Player> playersWithPoints = new ArrayList<>();
+                for (DataSnapshot playerSnapshot : dataSnapshot.getChildren()) {
+                    String nickname = playerSnapshot.getKey();
+                    int score = playerSnapshot.child("Score").getValue(Integer.class);
+                    Player playerWithPoints = new Player(nickname, score);
+                    playersWithPoints.add(playerWithPoints);
+                }
+                callback.onSuccess(playersWithPoints);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.getMessage());
+            }
+        });
+    }
+
+    public interface OnPlayersWithPointsCallback {
+        void onSuccess(List<Player> playersWithPoints);
+        void onError(String errorMessage);
+    }
+
+
+    public void getAllPlayersWithPoints(String roomID, final OnPlayersWithPointsCallback callback) {
+        getPlayersWithPoints(roomID, callback);
+    }
+
     public void areAllPlayersSelected(String roomID, final OnAllPlayersSelectedCallback callback) {
         DatabaseReference playersRef = databaseReference.child("Rooms").child(roomID).child("Players");
         playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -132,10 +164,15 @@ public class FirebaseManager {
                     String isAdmin = playerSnapshot.child("isAdmin").getValue(String.class);
                     String isSelected = playerSnapshot.child("selected").getValue(String.class);
 
-                    if (isAdmin.equals("false") && isSelected.equals("false")) {
-                        allPlayersSelected = false;
-                        callback.onPlayerNotSelected(false);
-                        break;
+                    if (isAdmin.equals("false") || isAdmin.equals("was")) {
+                        if(isSelected.equals("false"))
+                        {
+                            allPlayersSelected = false;
+                            callback.onPlayerNotSelected(false);
+                            break;
+                        }
+
+
                     }
                 }
                 callback.onSuccess(allPlayersSelected);

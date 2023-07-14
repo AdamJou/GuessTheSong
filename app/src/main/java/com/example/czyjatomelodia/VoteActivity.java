@@ -60,6 +60,41 @@ public class VoteActivity extends AppCompatActivity {
                 curretPlayerNickname=nickname;
                 Log.e(TAG, "CURRENT PLAYER NAME " + curretPlayerNickname);
                 moj.setText(curretPlayerNickname);
+                DatabaseReference playersRef = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
+
+                playersRef.addValueEventListener(new ValueEventListener() {
+                    HashSet<String> userNames = new HashSet<>();
+
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        isDataLoaded=false;
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            String name = dataSnapshot.getKey();
+                            if (!userNames.contains(name) && !name.equals(curretPlayerNickname) ) {
+                                //&& !name.equals(curretPlayerNickname)
+                                Log.e(TAG, "XD " + curretPlayerNickname);
+                                // sprawdzamy, czy użytkownik już istnieje na liście
+                                userNames.add(name);
+                                Player player = new Player(name);
+                                items.add(player);
+
+                            }
+                        }
+                        isDataLoaded = true;
+                        updateRecyclerView();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // obsługa błędu
+                    }
+
+
+
+
+
+                });
             }
 
             @Override
@@ -85,41 +120,9 @@ public class VoteActivity extends AppCompatActivity {
         recyclerView.setAdapter(playerAdapter);
 
       //  refreshUI();
-        DatabaseReference playersRef = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
 
         //WCZYTYWANIE GRACZY RECYCLE VIEW
-        playersRef.addValueEventListener(new ValueEventListener() {
-            HashSet<String> userNames = new HashSet<>();
 
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                isDataLoaded=false;
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    String name = dataSnapshot.getKey();
-                    if (!userNames.contains(name) ) {
-                        //&& !name.equals(curretPlayerNickname)
-                        // sprawdzamy, czy użytkownik już istnieje na liście
-                        userNames.add(name);
-                        Player player = new Player(name);
-                        items.add(player);
-
-                    }
-                }
-                isDataLoaded = true;
-                updateRecyclerView();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // obsługa błędu
-            }
-
-
-
-
-
-        });
         //
 
 
@@ -487,7 +490,7 @@ public class VoteActivity extends AppCompatActivity {
                                 public void onSuccess(Void aVoid) {
                                     // Powodzenie - wartość została zaktualizowana
                                     Log.d(TAG, "Status changed to running");
-                                    Toast.makeText(VoteActivity.this, "JUPI", Toast.LENGTH_LONG).show();
+
 
                                 }
                             })
