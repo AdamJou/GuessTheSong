@@ -28,23 +28,21 @@ import java.util.HashSet;
 
 public class VoteActivity extends AppCompatActivity {
 
-    String curretPlayerNickname,roomID;
-    String previousSong="null";
+    private static final String TAG = "GLOSOWANSKOOOOOO: ";
     final String room = "Rooms";
-    int roundNumber=1;
-    String selectedPlayerNickname ="null";
-    TextView songTitleTv,roundNumberTv,moj;
+    public boolean isDataLoaded = false;
+    public boolean isClicked = false;
+    String curretPlayerNickname, roomID;
+    String previousSong = "null";
+    int roundNumber = 1;
+    String selectedPlayerNickname = "null";
+    TextView songTitleTv, roundNumberTv, moj;
     RecyclerView recyclerView;
     PlayerAdapter playerAdapter;
     ArrayList<Player> items;
     InfoDialog infoDialog;
     Button confirmPickBtn;
-
-    public boolean isDataLoaded = false;
-    public boolean isClicked = false;
-    private static final String TAG = "GLOSOWANSKOOOOOO: ";
     private int selectedPosition = RecyclerView.NO_POSITION;
-
 
 
     @Override
@@ -57,21 +55,21 @@ public class VoteActivity extends AppCompatActivity {
         FirebaseManager.getInstance().getNickname("Users", new FirebaseManager.OnNicknameCallback() {
             @Override
             public void onSuccess(String nickname) {
-                curretPlayerNickname=nickname;
+                curretPlayerNickname = nickname;
                 Log.e(TAG, "CURRENT PLAYER NAME " + curretPlayerNickname);
                 moj.setText(curretPlayerNickname);
                 DatabaseReference playersRef = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
 
                 playersRef.addValueEventListener(new ValueEventListener() {
-                    HashSet<String> userNames = new HashSet<>();
+                    final HashSet<String> userNames = new HashSet<>();
 
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        isDataLoaded=false;
+                        isDataLoaded = false;
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             String name = dataSnapshot.getKey();
-                            if (!userNames.contains(name) && !name.equals(curretPlayerNickname) ) {
+                            if (!userNames.contains(name) && !name.equals(curretPlayerNickname)) {
                                 //&& !name.equals(curretPlayerNickname)
                                 Log.e(TAG, "XD " + curretPlayerNickname);
                                 // sprawdzamy, czy użytkownik już istnieje na liście
@@ -91,9 +89,6 @@ public class VoteActivity extends AppCompatActivity {
                     }
 
 
-
-
-
                 });
             }
 
@@ -103,12 +98,12 @@ public class VoteActivity extends AppCompatActivity {
             }
         });
 
-     //   curretPlayerNickname=intent.getStringExtra("nickname");
-       roomID=intent.getStringExtra("roomID");
-     //  roomID="a1";
-        songTitleTv=findViewById(R.id.tvSongTitle);
-        roundNumberTv=findViewById(R.id.tvRoundNumber);
-        confirmPickBtn=findViewById(R.id.confirmPickBtn);
+        //   curretPlayerNickname=intent.getStringExtra("nickname");
+        roomID = intent.getStringExtra("roomID");
+        //  roomID="a1";
+        songTitleTv = findViewById(R.id.tvSongTitle);
+        roundNumberTv = findViewById(R.id.tvRoundNumber);
+        confirmPickBtn = findViewById(R.id.confirmPickBtn);
 
         moj = findViewById(R.id.mojNick);
         infoDialog = new InfoDialog(VoteActivity.this);
@@ -116,19 +111,14 @@ public class VoteActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         items = new ArrayList<>();
-        playerAdapter = new PlayerAdapter(VoteActivity.this,items,recyclerView);
+        playerAdapter = new PlayerAdapter(VoteActivity.this, items, recyclerView);
         recyclerView.setAdapter(playerAdapter);
 
-      //  refreshUI();
+        //  refreshUI();
 
         //WCZYTYWANIE GRACZY RECYCLE VIEW
 
         //
-
-
-
-
-
 
 
         //AKTUALIZACJA STANU GRY
@@ -139,13 +129,13 @@ public class VoteActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String status = dataSnapshot.getValue(String.class);
                 assert status != null;
-                if (status.equals("playing") ) {
+                if (status.equals("playing")) {
                     infoDialog.closeDialog();
                     refreshUI();
                 }
-                if (status.equals("finished") ) {
+                if (status.equals("finished")) {
                     Intent intent = new Intent(VoteActivity.this, ResultActivity.class);
-                    intent.putExtra("roomID",roomID);
+                    intent.putExtra("roomID", roomID);
                     //playerAdapter.setOnItemClickListener(null);
                     confirmPickBtn.setOnClickListener(null);
                     startActivity(intent);
@@ -167,9 +157,9 @@ public class VoteActivity extends AppCompatActivity {
         playerAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedPosition=-1;
-                selectedPlayerNickname="null";
-                if(!isClicked){
+                selectedPosition = -1;
+                selectedPlayerNickname = "null";
+                if (!isClicked) {
                     selectedPlayerNickname = items.get(position).getName();
 
 
@@ -181,7 +171,7 @@ public class VoteActivity extends AppCompatActivity {
                     confirmPickBtn.setEnabled(true);
 
 
-                }else{
+                } else {
                     Toast.makeText(VoteActivity.this, "Nie możesz juz zmienic swojego wyboru!", Toast.LENGTH_LONG).show();
 
                 }
@@ -192,53 +182,48 @@ public class VoteActivity extends AppCompatActivity {
         // POBIERANIE WARTOSCI CURRENT
 
 
-
-
         ValueEventListener roundListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
 
-
                 FirebaseManager.getInstance().getNumberOfRounds(roomID, new FirebaseManager.OnNumberOfRoundsCallback() {
 
-                            @SuppressLint("SetTextI18n")
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onSuccess(int numberOfRounds) {
+                        DatabaseReference roundRef = FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).child("Current");
+                        roundNumber = numberOfRounds;
+                        roundNumberTv.setText("Runda " + roundNumber);
+                        roundRef.addValueEventListener(new ValueEventListener() {
                             @Override
-                            public void onSuccess(int numberOfRounds) {
-                                DatabaseReference roundRef = FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).child("Current");
-                                roundNumber=numberOfRounds;
-                                roundNumberTv.setText("Runda " + roundNumber);
-                                roundRef.addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.exists()) {
-                                            String currentValue = dataSnapshot.getValue(String.class);
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    String currentValue = dataSnapshot.getValue(String.class);
 
-                                            if(!currentValue.equals(previousSong)){
-                                                refreshUI();
-                                            }
-                                            previousSong=currentValue;
-                                        }
+                                    if (!currentValue.equals(previousSong)) {
+                                        refreshUI();
                                     }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                        Log.d("FirebaseManager", "Błąd odczytu wartości z pola 'Current': " + databaseError.getMessage());
-                                    }
-                                });
-
+                                    previousSong = currentValue;
+                                }
                             }
 
                             @Override
-                            public void onError(String errorMessage) {
-
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.d("FirebaseManager", "Błąd odczytu wartości z pola 'Current': " + databaseError.getMessage());
                             }
                         });
 
+                    }
 
-            };
+                    @Override
+                    public void onError(String errorMessage) {
+
+                    }
+                });
 
 
+            }
 
 
             @Override
@@ -248,59 +233,35 @@ public class VoteActivity extends AppCompatActivity {
         };
 
 
-
-
-
-
-
-
-
-
-
-     //   DatabaseReference roundRef =
-                FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).
-                     child("Current").addValueEventListener(roundListener);;
-
-
+        //   DatabaseReference roundRef =
+        FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).
+                child("Current").addValueEventListener(roundListener);
 
 
         confirmPickBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isClicked=true;
+                isClicked = true;
                 playerAdapter.clearSelection();
                 check(selectedPlayerNickname);
                 Log.e(TAG, "WYBRANY: " + selectedPlayerNickname);
-              //  selectedPlayerNickname="null";
+                //  selectedPlayerNickname="null";
 
                 Log.e(TAG, "MOJ: " + curretPlayerNickname);
-               // playerAdapter.setOnItemClickListener(null);
+                // playerAdapter.setOnItemClickListener(null);
                 confirmPickBtn.setEnabled(false);
                 playerAdapter.setBackgroundForPosition(selectedPosition, false);
             }
         });
-
-
         infoDialog.loadDialog();
-
-
-
-
     }
-
 
 
     private void refreshUI() {
 
 
-
-
         DatabaseReference currentRef =
                 FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).child("Current");
-
-
-
-
 
 
         currentRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -312,10 +273,10 @@ public class VoteActivity extends AppCompatActivity {
                     songTitleTv.setText(value);
                     roundNumberTv.setText("Runda " + roundNumber);
                     confirmPickBtn.setVisibility(View.INVISIBLE);
-                    isClicked=false;
+                    isClicked = false;
                     playerAdapter.setBackgroundForPosition(selectedPosition, false);
-                   selectedPosition=RecyclerView.NO_POSITION;
-                  updateRecyclerView();
+                    selectedPosition = RecyclerView.NO_POSITION;
+                    updateRecyclerView();
                 } else {
 
                     Log.d("Firebase", "Brak wartości w bazie danych");
@@ -330,68 +291,64 @@ public class VoteActivity extends AppCompatActivity {
         });
 
 
-
-
     }
 
 
     private void check(String pick) {
 
 
-
-        DatabaseReference setPickRef=FirebaseManager.getInstance().getDatabaseReference().child(room)
-                .child(roomID).child("Round"+ roundNumber).child("PlayerPicks").child(curretPlayerNickname);
+        DatabaseReference setPickRef = FirebaseManager.getInstance().getDatabaseReference().child(room)
+                .child(roomID).child("Round" + roundNumber).child("PlayerPicks").child(curretPlayerNickname);
         setPickRef.setValue(pick);
 
         DatabaseReference checkRef =
-                FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).child("Round"+roundNumber).child("Owner");
+                FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID).child("Round" + roundNumber).child("Owner");
 
         checkRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     String currentValue = dataSnapshot.getValue(String.class);
-                  if(pick.equals(currentValue)){
+                    if (pick.equals(currentValue)) {
 
 
-                      DatabaseReference sumRef =
-                              FirebaseManager.getInstance().getDatabaseReference().child(room)
-                                      .child(roomID).
-                                      child("Players").child(curretPlayerNickname).child("Score");
+                        DatabaseReference sumRef =
+                                FirebaseManager.getInstance().getDatabaseReference().child(room)
+                                        .child(roomID).
+                                        child("Players").child(curretPlayerNickname).child("Score");
 
 
-                      sumRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                          @Override
-                          public void onDataChange(DataSnapshot dataSnapshot) {
-                              if (dataSnapshot.exists()) {
+                        sumRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
 
-                                  Integer score = dataSnapshot.getValue(Integer.class); // Pobranie wartości jako Integer
-                                        if (score != null) {
-                                             // score++; // Inkrementacja wartości
-                                             // sumRef.setValue(score); // Aktualizacja wartości w bazie danych
-                                              checkPlayer(pick,sumRef);
+                                    Integer score = dataSnapshot.getValue(Integer.class); // Pobranie wartości jako Integer
+                                    if (score != null) {
+                                        // score++; // Inkrementacja wartości
+                                        // sumRef.setValue(score); // Aktualizacja wartości w bazie danych
+                                        checkPlayer(pick, sumRef);
 
-                                          } else {
-                                              // Obsługa przypadku, gdy wartość w bazie danych jest null
-                                              Log.d("FirebaseManager", "Wartość w bazie danych jest null");
-                                          }
-
-
-                                      }
+                                    } else {
+                                        // Obsługa przypadku, gdy wartość w bazie danych jest null
+                                        Log.d("FirebaseManager", "Wartość w bazie danych jest null");
+                                    }
 
 
-
-                              }
-
-
-                          @Override
-                          public void onCancelled(DatabaseError databaseError) {
-                              Log.d("FirebaseManager", "Błąd odczytu wartości z pola 'Current': " + databaseError.getMessage());
-                          }
-                      });
+                                }
 
 
-                  }
+                            }
+
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.d("FirebaseManager", "Błąd odczytu wartości z pola 'Current': " + databaseError.getMessage());
+                            }
+                        });
+
+
+                    }
 
                 }
             }
@@ -402,77 +359,74 @@ public class VoteActivity extends AppCompatActivity {
             }
         });
 
-/*
+        /*
 
 
 
 
 
 
-*/
-
+         */
 
 
         DatabaseReference setRef =
                 FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID)
                         .child("Players").child(curretPlayerNickname).child("selected");
 
-                setRef.setValue("true");
+        setRef.setValue("true");
 
         everyPlayerVoted();
     }
 
 
-    private void checkPlayer(String pick, DatabaseReference ref){
+    private void checkPlayer(String pick, DatabaseReference ref) {
 
-    if(!pick.isEmpty()) {
-        DatabaseReference setScoreRef =
-                FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID)
-                        .child("Round" + roundNumber).child("PlayerPicks").child(curretPlayerNickname);
+        if (!pick.isEmpty()) {
+            DatabaseReference setScoreRef =
+                    FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID)
+                            .child("Round" + roundNumber).child("PlayerPicks").child(curretPlayerNickname);
 
-        Log.d(TAG, "numer: " + roundNumber);
-        setScoreRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    String currentPlayerPick = snapshot.getValue(String.class);
+            Log.d(TAG, "numer: " + roundNumber);
+            setScoreRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        String currentPlayerPick = snapshot.getValue(String.class);
 
-                    if (currentPlayerPick.equals(pick)) {
+                        if (currentPlayerPick.equals(pick)) {
 
-                        Log.d(TAG, "CZYZBY? " + currentPlayerPick.equals(pick));
-                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Integer score = snapshot.getValue(Integer.class);
-                                score++;
-                                DatabaseReference setPlayerScore =
-                                        FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID)
-                                                .child("Players").child(curretPlayerNickname).child("Score");
-                                setPlayerScore.setValue(score);
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
+                            Log.d(TAG, "CZYZBY? " + currentPlayerPick.equals(pick));
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    Integer score = snapshot.getValue(Integer.class);
+                                    score++;
+                                    DatabaseReference setPlayerScore =
+                                            FirebaseManager.getInstance().getDatabaseReference().child(room).child(roomID)
+                                                    .child("Players").child(curretPlayerNickname).child("Score");
+                                    setPlayerScore.setValue(score);
+                                }
 
-                            }
-                        });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                        }
+
+
+                    }
+
                 }
 
-
-
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
                 }
+            });
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+        }
     }
-    }
-
 
 
     private void everyPlayerVoted() {
@@ -503,8 +457,6 @@ public class VoteActivity extends AppCompatActivity {
                             });
 
 
-
-
                 }
             }
 
@@ -515,7 +467,7 @@ public class VoteActivity extends AppCompatActivity {
 
             @Override
             public void onPlayerNotSelected(boolean notSelected) {
-                if(!notSelected){
+                if (!notSelected) {
                     Log.e("TAG", "JESZCZE NIE WSZYSCY ZAGLOSOWALI");
                 }
             }

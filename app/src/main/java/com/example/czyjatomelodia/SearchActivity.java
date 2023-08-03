@@ -26,7 +26,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,79 +36,73 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchActivity extends AppCompatActivity  {
+public class SearchActivity extends AppCompatActivity {
 
-        DatabaseReference fReference;
-        TextView selectedSong;
-        Button submit,ku,kd;
-        FirebaseAuth fAuth;
-        RecyclerView recyclerView;
-        String nickname,isAdmin,roomID;
-        SearchView search;
-
-
-        private final String TAG = "INFORMACJE";
-        private boolean isSearchExecuted = false;
-        private ProgressDialog progressDialog;
-        private Handler uiHandler;
-
+    private final String TAG = "INFORMACJE";
+    DatabaseReference fReference;
+    TextView selectedSong;
+    Button submit, ku, kd;
+    FirebaseAuth fAuth;
+    RecyclerView recyclerView;
+    String nickname, isAdmin, roomID;
+    SearchView search;
+    private boolean isSearchExecuted = false;
+    private ProgressDialog progressDialog;
+    private Handler uiHandler;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-       // btn = (Button)findViewById(R.id.btnYt);
-      //  txt=(EditText) findViewById(R.id.ytTxt);
+        // btn = (Button)findViewById(R.id.btnYt);
+        //  txt=(EditText) findViewById(R.id.ytTxt);
         fAuth = FirebaseAuth.getInstance();
-       // username=findViewById(R.id.userUID);
+        // username=findViewById(R.id.userUID);
 
 
-
-        selectedSong=findViewById(R.id.tvSelectedSong);
-        recyclerView = (RecyclerView)findViewById(R.id.ytRecycle);
-        submit=(Button)findViewById(R.id.btnSubmitSong);
-        search=(SearchView)findViewById(R.id.ytTxt);
-       // ku=findViewById(R.id.btnKurwa);
-       // kd=findViewById(R.id.btnKd);
+        selectedSong = findViewById(R.id.tvSelectedSong);
+        recyclerView = findViewById(R.id.ytRecycle);
+        submit = findViewById(R.id.btnSubmitSong);
+        search = findViewById(R.id.ytTxt);
+        // ku=findViewById(R.id.btnKurwa);
+        // kd=findViewById(R.id.btnKd);
         progressDialog = new ProgressDialog(SearchActivity.this);
         progressDialog.setMessage("Ładowanie..");
         progressDialog.setCancelable(false);
         uiHandler = new Handler(Looper.getMainLooper());
 
 
-
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
-                                              @Override
-                                              public boolean onQueryTextSubmit(String s) {
-                                                    Search(s);
-                                                  showDialog();
-                                                  return true;
-                                              }
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                Search(s);
+                showDialog();
+                return true;
+            }
 
-                                          @Override
-                                          public boolean onQueryTextChange(String newText) {
-                                              return false;
-                                          }
-                                      });
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(SearchActivity.this));
         recyclerView.hasFixedSize();
 
         Intent intent = getIntent();
-        nickname=intent.getStringExtra("nickname");
+        nickname = intent.getStringExtra("nickname");
 
 
-
-        isAdmin=intent.getStringExtra("isAdmin");
-        roomID=intent.getStringExtra("id");
+        isAdmin = intent.getStringExtra("isAdmin");
+        roomID = intent.getStringExtra("id");
         FirebaseManager.getInstance().clearSongDataForAllPlayers(roomID);
         FirebaseUser user = fAuth.getCurrentUser();
 
 
-        Log.e(TAG," CHECK IF ADMIN " + isAdmin);
+        Log.e(TAG, " CHECK IF ADMIN " + isAdmin);
         String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         //  username.setText(user.getUid());
 
@@ -189,30 +185,23 @@ public class SearchActivity extends AppCompatActivity  {
     }
 
 
+    private void Search(String query) {
 
 
-    private void Search(String query){
-
-
-
-
-        String key2="AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
+        String key2 = "AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
         String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
-       String val = query;
-        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet",val,key2,"relevance",10);
+        String val = query;
+        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet", val, key2, "relevance", 10);
 
         isSearchExecuted = false;
         videoModelCall.enqueue(new Callback<VideoDetails>() {
             @Override
-            public void onResponse( Call<VideoDetails> call, Response<VideoDetails> response) {
+            public void onResponse(Call<VideoDetails> call, Response<VideoDetails> response) {
 
                 assert response.body() != null;
 
                 uiHandler.post(() -> setRecycleView(response.body().getItems()));
                 dismissDialog();
-
-
-
 
 
             }
@@ -227,10 +216,10 @@ public class SearchActivity extends AppCompatActivity  {
     }
 
 
-
     private void showDialog() {
         progressDialog.show();
     }
+
     private void dismissDialog() {
         progressDialog.dismiss();
     }
@@ -238,15 +227,23 @@ public class SearchActivity extends AppCompatActivity  {
 
     private void setRecycleView(Item[] items) {
 
+        List<Item> filteredItems = new ArrayList<>();
 
-        VideoDetailsAdapter myAdapter = new VideoDetailsAdapter(SearchActivity.this,items);
+
+        for (Item item : items) {
+            if (item.getId() != null && item.getId().getVideoId() != null) {
+                filteredItems.add(item);
+            }
+        }
+
+        VideoDetailsAdapter myAdapter = new VideoDetailsAdapter(SearchActivity.this, items);
 
         myAdapter.setOnItemClickListener(new VideoDetailsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 String id = items[position].getId().getVideoId();
                 String title = items[position].getSnippet().getTitle();
-              //  Toast.makeText(SearchActivity.this, id, Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(SearchActivity.this, id, Toast.LENGTH_SHORT).show();
 
                 submit.setVisibility(View.VISIBLE);
 
@@ -257,8 +254,8 @@ public class SearchActivity extends AppCompatActivity  {
                                 .getReference("Rooms").child(roomID).child("Players").child(nickname);
 
 
-                      // Map<String, Object> songInfo = new HashMap<>();
-                      //  songInfo.put("songID", id);
+                        // Map<String, Object> songInfo = new HashMap<>();
+                        //  songInfo.put("songID", id);
 
                         Log.i(TAG, id);
                         Log.i(TAG, roomID);
@@ -276,14 +273,14 @@ public class SearchActivity extends AppCompatActivity  {
                         selectedSong.setText(title);
 
                         if (isAdmin.equals("true")) {
-                            Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname",nickname)
-                                    .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
+                            Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname", nickname)
+                                    .putExtra("isAdmin", isAdmin).putExtra("roomID", roomID);
                             startActivity(intent);
                             finish();
 
-                        }else{
-                            Intent intent = new Intent(SearchActivity.this, VoteActivity.class).putExtra("nickname",nickname)
-                                    .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
+                        } else {
+                            Intent intent = new Intent(SearchActivity.this, VoteActivity.class).putExtra("nickname", nickname)
+                                    .putExtra("isAdmin", isAdmin).putExtra("roomID", roomID);
                             startActivity(intent);
                             finish();
                         }
@@ -295,15 +292,13 @@ public class SearchActivity extends AppCompatActivity  {
             }
         });
 
-        RecyclerView.LayoutManager  lm = new LinearLayoutManager(SearchActivity.this);
+        RecyclerView.LayoutManager lm = new LinearLayoutManager(SearchActivity.this);
         recyclerView.setLayoutManager(lm);
         recyclerView.setAdapter(myAdapter);
-       recyclerView.setVisibility(View.VISIBLE);
-
+        recyclerView.setVisibility(View.VISIBLE);
 
 
     }
-
 
 
 }

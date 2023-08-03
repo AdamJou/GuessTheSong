@@ -7,14 +7,11 @@
     tools:context=".PlaySongActivity">
 
 
-    <com.google.android.youtube.player.YouTubePlayerView
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
         android:id="@+id/youtube_player_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-       />
+        />
 
 
     <Button

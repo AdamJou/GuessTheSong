@@ -450,6 +450,71 @@ public class FirebaseManager {
     public interface OnAllPlayersDJsCallback {
         void onAllPlayersDJs();
     }
+    public void checkVotesForOwner(String roomID, final OnCheckVotesForOwnerCallback callback) {
+        DatabaseReference roomRef = databaseReference.child("Rooms").child(roomID);
+        roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DataSnapshot playersSnapshot = dataSnapshot.child("Players");
+                DataSnapshot currentRoundSnapshot = dataSnapshot.child("Round" + dataSnapshot.child("NumberOfRounds").getValue(Integer.class));
+
+                String owner = currentRoundSnapshot.child("Owner").getValue(String.class);
+                if (owner != null && playersSnapshot.hasChild(owner)) {
+                    boolean votesForOwner = false;
+                    for (DataSnapshot playerSnapshot : playersSnapshot.getChildren()) {
+                        String nickname = playerSnapshot.getKey();
+                        if (!nickname.equals(owner)) {
+                            String playerPick = currentRoundSnapshot.child("PlayerPicks").child(nickname).getValue(String.class);
+                            if (playerPick != null && playerPick.equals(owner)) {
+                                votesForOwner = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!votesForOwner) {
+                        DatabaseReference ownerScoreRef = databaseReference.child("Rooms").child(roomID).child("Players").child(owner).child("Score");
+                        ownerScoreRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Integer currentScore = dataSnapshot.getValue(Integer.class);
+                                if (currentScore != null) {
+                                    try {
+                                        ownerScoreRef.setValue(currentScore + 1);
+                                        callback.onVotesChecked(true);
+                                    } catch (NumberFormatException e) {
+                                        callback.onError("Invalid current score format");
+                                    }
+                                } else {
+                                    callback.onError("Current score not found");
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                callback.onError(databaseError.getMessage());
+                            }
+                        });
+                    } else {
+                        callback.onVotesChecked(false);
+                    }
+                } else {
+                    callback.onError("Owner not found or players not found");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.getMessage());
+            }
+        });
+    }
+
+
+    public interface OnCheckVotesForOwnerCallback {
+        void onVotesChecked(boolean additionalPointAdded);
+        void onError(String errorMessage);
+    }
 
 
     private void checkIfAllPlayersReady(final OnPlayersReadyCallback callback) {

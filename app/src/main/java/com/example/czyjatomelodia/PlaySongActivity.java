@@ -6,22 +6,25 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Adapter.PlayerAdapter;
-import com.google.android.youtube.player.YouTubeBaseActivity;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -31,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class PlaySongActivity extends YouTubeBaseActivity {
+public class PlaySongActivity extends AppCompatActivity implements LifecycleObserver {
 
     YouTubePlayerView youTubePlayerView;
     String songID, nick, songTitle, playerName, roomID;
@@ -45,7 +48,9 @@ public class PlaySongActivity extends YouTubeBaseActivity {
     String TAG = "PLAYSONGACTIVITY________: ";
     boolean finished = false;
     public boolean isDataLoaded = false;
+    private WebView webView;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,21 +59,16 @@ public class PlaySongActivity extends YouTubeBaseActivity {
         Intent intent = getIntent();
         songID = intent.getStringExtra("songID");
         songTitle = intent.getStringExtra("songTitle");
-
+        youTubePlayerView = findViewById(R.id.youtube_player_view);
         back = findViewById(R.id.btnBack);
         nick = intent.getStringExtra("nick");
         playerName = songTitle;
         roomID = intent.getStringExtra("roomID");
-        youTubePlayerView = findViewById(R.id.youtube_player_view);
-        playerLinearLayout=findViewById(R.id.playerLinearLayout);
+        playerLinearLayout = findViewById(R.id.playerLinearLayout);
         playerPicksRecycle = findViewById(R.id.playerPicksRecycle);
         filterString();
-
-
         initializeAdapter();
-
-
-
+        initializePlayer();
 
 
         //Listening for players who voted
@@ -85,26 +85,23 @@ public class PlaySongActivity extends YouTubeBaseActivity {
                     String playerName = dataSnapshot.getKey();
                     String voted = dataSnapshot.child("selected").getValue(String.class);
 
-                        if (voted.equals("true")) {
+                    if (voted.equals("true")) {
 
-                            for (Player player : playersVote) {
-                                if (player.getName().equals(playerName)) {
+                        for (Player player : playersVote) {
+                            if (player.getName().equals(playerName)) {
 
-                                   // player.setCorrect(true);
-                                    //player.setBackgroundColor(0xFF00FF00);
-
-
-                                    @SuppressLint("UseCompatLoadingForDrawables") Drawable drawable = getApplicationContext().getResources().getDrawable(R.drawable.ic_baseline_check_circle_outline_24);  // Pobranie Drawable z zasobów
-                                    player.setDrawable(drawable);  // Ustawienie Drawable dla gracza
+                                // player.setCorrect(true);
+                                //player.setBackgroundColor(0xFF00FF00);
 
 
-                                }
+                                @SuppressLint("UseCompatLoadingForDrawables") Drawable drawable = getApplicationContext().getResources().getDrawable(R.drawable.ic_baseline_check_circle_outline_24);  // Pobranie Drawable z zasobów
+                                player.setDrawable(drawable);  // Ustawienie Drawable dla gracza
+
+
                             }
-
-
-
-
                         }
+
+                    }
 
 
                 }
@@ -117,8 +114,6 @@ public class PlaySongActivity extends YouTubeBaseActivity {
                 // obsługa błędu
             }
         });
-
-
 
 
         FirebaseManager.getInstance().getNickname("Users", new FirebaseManager.OnNicknameCallback() {
@@ -134,45 +129,7 @@ public class PlaySongActivity extends YouTubeBaseActivity {
         });
 
 
-        YouTubePlayer.OnInitializedListener listener = new YouTubePlayer.OnInitializedListener() {
-            @Override
-            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
-                youTubePlayer.loadVideo(songID);
-
-            }
-
-
-            @Override
-            public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-                Toast.makeText(PlaySongActivity.this, youTubeInitializationResult.toString(), Toast.LENGTH_LONG).show();
-
-            }
-        };
-
-        //  String videoId = "qAHMCZBwYo4";
-        // Intent intent2 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId));
-        // startActivity(intent2);
-
-        youTubePlayerView.initialize("AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk", listener);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-                youTubePlayerView.initialize("AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk", listener);
-            }
-        });
-
-        // FirebaseManager firebaseManager = FirebaseManager.getInstance();
-
         changeStatus();
-
-/*
-        fAuth = FirebaseAuth.getInstance();
-        fDatabase = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/");
-        String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        fReference =  fDatabase.getReference().child("Users").child(uid);
-*/
 
 
         FirebaseManager.getInstance().getNumberOfRounds(roomID, new FirebaseManager.OnNumberOfRoundsCallback() {
@@ -216,6 +173,24 @@ public class PlaySongActivity extends YouTubeBaseActivity {
             @Override
             public void onClick(View v) {
 
+                FirebaseManager.getInstance().checkVotesForOwner(roomID, new FirebaseManager.OnCheckVotesForOwnerCallback() {
+                    @Override
+                    public void onVotesChecked(boolean additionalPointAdded) {
+                        if (additionalPointAdded) {
+                            Log.e(TAG, "DODANO PUNKCIK ESSA");
+                        } else {
+                            Log.e(TAG, "NIKOMU SIE NIE UDALO ;P");
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Wystąpił błąd podczas sprawdzania głosów
+                        // Wykonaj odpowiednie działania w przypadku błędu
+                    }
+                });
+
                 finish();
 
 
@@ -225,9 +200,20 @@ public class PlaySongActivity extends YouTubeBaseActivity {
 
     }
 
+    private void initializePlayer() {
+        getLifecycle().addObserver(youTubePlayerView);
+        youTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
+            @Override
+            public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+
+                if (!songID.isEmpty()) {
+                    youTubePlayer.loadVideo(songID, 0);
+                }
+            }
+        });
+    }
+
     private void initializeAdapter() {
-
-
 
 
         playerPicksRecycle.setHasFixedSize(true);
@@ -273,6 +259,12 @@ public class PlaySongActivity extends YouTubeBaseActivity {
                 // obsługa błędu
             }
         });
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private void releaseYouTubePlayer() {
+        YouTubePlayerView youTubePlayerView = findViewById(R.id.youtube_player_view);
+        youTubePlayerView.release();
     }
 
     private void updateRecyclerView() {
@@ -408,7 +400,11 @@ public class PlaySongActivity extends YouTubeBaseActivity {
     @Override
     public void onBackPressed() {
 
-        super.onBackPressed();
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
 
 
     }

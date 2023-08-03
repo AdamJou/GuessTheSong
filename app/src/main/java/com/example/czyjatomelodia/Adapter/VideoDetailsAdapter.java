@@ -44,26 +44,34 @@ public class VideoDetailsAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        if (items[position].getId().getVideoId() != null) {
+            holder.itemView.setVisibility(View.VISIBLE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onItemClick(position);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mListener != null) {
+                        mListener.onItemClick(position);
+                    }
+                    notifyItemChanged(selectedPos);
+                    selectedPos = position;
+                    notifyItemChanged(selectedPos);
                 }
-                notifyItemChanged(selectedPos);
-                selectedPos = position;
-                notifyItemChanged(selectedPos);
+            });
+
+            holder.textView.setText(items[position].getSnippet().getTitle());
+            Picasso.get().load(items[position].getSnippet().getThumbnails().getMedium().getUrl()).into(holder.imageView);
+
+            if (selectedPos == position) {
+                holder.cardBg.setBackgroundColor(Color.parseColor("#9f9cff"));
+            } else {
+                holder.cardBg.setBackgroundColor(Color.parseColor("#ffffff"));
             }
-        });
-
-        holder.textView.setText(items[position].getSnippet().getTitle());
-        Picasso.get().load(items[position].getSnippet().getThumbnails().getMedium().getUrl()).into(holder.imageView);
-
-        if (selectedPos == position) {
-            holder.cardBg.setBackgroundColor(Color.parseColor("#9f9cff"));
         } else {
-            holder.cardBg.setBackgroundColor(Color.parseColor("#ffffff"));
+            // Jeśli element nie jest filmem (jest kanałem), ukrywamy go w RecyclerView
+            holder.itemView.setVisibility(View.GONE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         }
     }
 
