@@ -12,8 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.czyjatomelodia.Base.BaseActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDialogListener {
+public class HomeActivity extends BaseActivity implements JoinDialog.JoinDialogListener {
 
 
     private MediaPlayer mediaPlayer;
@@ -85,6 +85,7 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(getApplicationContext(), Login.class));
+                finish();
             }
         });
 
@@ -97,11 +98,10 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
 
                     DataSnapshot snapshot = task.getResult();
                     nick = String.valueOf(snapshot.child("Nickname").getValue());
-                    Toast.makeText(HomeActivity.this, nick, Toast.LENGTH_SHORT).show();
                     username.setText(nick);
 
                 } else {
-                    Toast.makeText(HomeActivity.this, "chujnia", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -134,6 +134,7 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
 
                 startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", nick + 1)
                         .putExtra("isAdmin", "true").putExtra("nickname", nick));
+                finish();
 
 
             }
@@ -201,6 +202,7 @@ public class HomeActivity extends AppCompatActivity implements JoinDialog.JoinDi
                             try {
                                 startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", id)
                                         .putExtra("isAdmin", "false").putExtra("nickname", nick));
+                                finish();
 
                             } catch (Exception e) {
 

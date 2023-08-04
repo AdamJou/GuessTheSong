@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
@@ -53,7 +55,8 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
     @Override
     public PlayerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.player_item, parent,false);
-
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.leftfade);
+        itemView.startAnimation(animation);
 
         return new PlayerViewHolder(itemView);
     }
@@ -61,6 +64,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
     public void onBindViewHolder(@NonNull PlayerViewHolder holder, int position) {
         Player p = items.get(holder.getAdapterPosition());
         holder.playerName.setText(p.getName());
+
 
 
         int backgroundColor = p.getBackgroundColor();
@@ -75,7 +79,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
 
 
         if (holder.getAdapterPosition() == selectedPosition) {
-            holder.linearLayout.setBackgroundColor(0xFFFF0000); // kolor czerwony
+            holder.linearLayout.setBackgroundColor(0xFFFFC107); // kolor zolty
 
         } else {
 
@@ -109,6 +113,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
 
 
     }
+
 
     @Override
     public int getItemCount() {

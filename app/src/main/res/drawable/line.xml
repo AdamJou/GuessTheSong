@@ -1,8 +1,11 @@
 <shape
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="line">
+    android:shape="line"
+
+    >
     <stroke
         android:width="2dp"
+
         android:color="#878787" />
     <size android:height="2dp" />
 </shape>

@@ -11,11 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Adapter.PlayerAdapter;
+import com.example.czyjatomelodia.Base.BaseActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -26,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class VoteActivity extends AppCompatActivity {
+public class VoteActivity extends BaseActivity {
 
     private static final String TAG = "GLOSOWANSKOOOOOO: ";
     final String room = "Rooms";
