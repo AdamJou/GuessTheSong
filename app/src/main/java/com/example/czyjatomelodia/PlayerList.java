@@ -3,22 +3,25 @@ package com.example.czyjatomelodia;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Adapter.PlayerAdapter;
+import com.example.czyjatomelodia.Base.BaseActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -30,7 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class PlayerList<isDataLoaded> extends AppCompatActivity {
+public class PlayerList<isDataLoaded> extends BaseActivity {
 
     RecyclerView recyclerView;
     DatabaseReference fReference;
@@ -38,10 +41,13 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
     ArrayList<Player> items;
     LinearLayout linearLayout;
     Button startGame,refresh;
-    String isAdmin,id,nickname;
+    String isAdmin, roomID,nickname;
     TextView roomKey,roomName;
     private static final String TAG = "PlayerList";
     public boolean isDataLoaded = false;
+    private boolean moreThanTwoPlayers = false;
+    private Handler handler = new Handler();
+    Animation fade,alpha;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,27 +55,31 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
 
         Intent intent = getIntent();
         nickname=intent.getStringExtra("nickname");
-         id = intent.getStringExtra("roomID");
+         roomID = intent.getStringExtra("roomID");
          isAdmin = intent.getStringExtra("isAdmin");
-        Toast.makeText(PlayerList.this, isAdmin, Toast.LENGTH_LONG).show();
 
 
         refresh=findViewById(R.id.refreshBtn);
         startGame = findViewById(R.id.startGameBtn);
         roomName=findViewById(R.id.tvRoomName);
         roomKey=findViewById(R.id.tvRoomKey);
-
+        fade = AnimationUtils.loadAnimation(this, R.anim.leftfade);
+        alpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
         initializeText();
-        buttonVisibility();
+
 
 
 
 
         linearLayout = findViewById(R.id.playerLinearLayout);
         recyclerView = findViewById(R.id.playerList);
-        fReference = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(id).child("Players");
+        fReference = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+
+
         items = new ArrayList<>();
         playerAdapter = new PlayerAdapter(this,items,recyclerView);
         recyclerView.setAdapter(playerAdapter);
@@ -77,7 +87,12 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateRecyclerView();
+
+               // buttonVisibility();
+                for (int i = 0; i < items.size(); i++) {
+                    animateRecyclerViewItem(i);
+                }
+
             }
         });
 
@@ -98,7 +113,8 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 isDataLoaded=false;
-
+                buttonVisibility();
+                int delay = 0; // Początkowy opóźnienie
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     String name = dataSnapshot.getKey();
                     DataSnapshot admin= dataSnapshot.child("isAdmin");
@@ -113,6 +129,12 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
                         }else{
                             iterator++;
                         }
+                        if (playerAdapter != null) {
+                            int position = playerAdapter.getItemCount() - 1;
+                            playerAdapter.notifyItemInserted(position);
+                        }
+
+
 
                     }
                 }
@@ -128,7 +150,7 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
 
 
         //Change game status, start Searching
-        fReference = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(id).child("Status");
+        fReference = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Status");
         fReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -136,7 +158,7 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
                 if (status != null && status.equals("running")) {
 
                     Intent intent = new Intent(getApplicationContext(), SearchActivity.class).putExtra("nickname",nickname)
-                            .putExtra("isAdmin",isAdmin).putExtra("id",id);
+                            .putExtra("isAdmin",isAdmin).putExtra("id", roomID);
                     startActivity(intent);
                 }
             }
@@ -155,12 +177,12 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
 
     private void initializeText() {
 
-        SpannableString txt = new SpannableString("Pokój gracza: " + id.substring(0, id.length() - 1));
+        SpannableString txt = new SpannableString("Pokój gracza: " + roomID.substring(0, roomID.length() - 1));
         txt.setSpan(new StyleSpan(Typeface.BOLD), 0, 12, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         roomName.setText(txt);
 
 
-        SpannableString txt2 = new SpannableString("KOD: " + id);
+        SpannableString txt2 = new SpannableString("KOD: " + roomID);
         txt2.setSpan(new StyleSpan(Typeface.BOLD), 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         roomKey.setText(txt2);
 
@@ -174,12 +196,20 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
     private void notifyAdapterIfNeeded() {
         if (isDataLoaded) {
             playerAdapter.notifyDataSetChanged();
+
         }
     }
+
+
+    private void animateRecyclerViewItem(final int position) {
+        fade.setStartOffset(position * 100); // Opóźnienie dla każdego gracza w milisekundach
+        recyclerView.getChildAt(position).startAnimation(fade);
+    }
+
     private void changeStatus() {
 
         fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("Rooms").child(id).child("Status");
+                .getReference("Rooms").child(roomID).child("Status");
 
         fReference.setValue("running")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -205,7 +235,28 @@ public class PlayerList<isDataLoaded> extends AppCompatActivity {
     private void buttonVisibility() {
         if(isAdmin.equals("true")) {
 
-            startGame.setVisibility(View.VISIBLE);
+
+
+            FirebaseManager.getInstance().checkIfMoreThanTwoPlayersInRoom(roomID, new FirebaseManager.OnCheckPlayersCountCallback() {
+                @Override
+                public void onMoreThanTwoPlayers(boolean moreThanTwo) {
+                    if(moreThanTwo){
+                        startGame.setVisibility(View.VISIBLE);
+                        startGame.startAnimation(alpha);
+                    }
+
+
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+
+                }
+            });
+
+
+
+
         }
 
     }

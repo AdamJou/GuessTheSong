@@ -589,6 +589,36 @@ public class FirebaseManager {
 
 
 
+    public void checkIfMoreThanTwoPlayersInRoom(String roomId, final OnCheckPlayersCountCallback callback) {
+        DatabaseReference playersRef = databaseReference.child("Rooms").child(roomId).child("Players");
+        playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    int numberOfPlayers = (int) dataSnapshot.getChildrenCount();
+                    if (numberOfPlayers > 1) {
+                        callback.onMoreThanTwoPlayers(true);
+                    } else {
+                        callback.onMoreThanTwoPlayers(false);
+                    }
+                } else {
+                    callback.onError("Players not found");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.getMessage());
+            }
+        });
+    }
+
+    public interface OnCheckPlayersCountCallback {
+        void onMoreThanTwoPlayers(boolean moreThanTwoPlayers);
+        void onError(String errorMessage);
+    }
+
+
 
 
 

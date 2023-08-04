@@ -12,12 +12,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Adapter.VideoDetailsAdapter;
+import com.example.czyjatomelodia.Base.BaseActivity;
 import com.example.czyjatomelodia.Model.Item;
 import com.example.czyjatomelodia.Model.VideoDetails;
 import com.example.czyjatomelodia.Network.NetworkInstance;
@@ -36,7 +36,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends BaseActivity {
 
     private final String TAG = "INFORMACJE";
     DatabaseReference fReference;
