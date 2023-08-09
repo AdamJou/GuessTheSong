@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@color/white"
+    android:fontFamily="@font/poppins"
     android:layout_height="match_parent"
     tools:context=".PlayerList">
 
@@ -19,30 +20,24 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <Button
-        android:id="@+id/startBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
-        android:text="Zatwierdź"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-   />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/refreshBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/cornersempty"
+        android:drawableStart="@drawable/ic_baseline_refresh_24"
+        android:drawablePadding="8dp"
+        android:fontFamily="@font/poppins"
+        android:paddingStart="8dp"
+        android:paddingRight="16dp"
         android:text="Odśwież"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
+        android:layout_marginBottom="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startBtn"
-        app:layout_constraintVertical_bias="1.0" />
+
+        />
 
     <TextView
         android:id="@+id/tvAdminInfo"
@@ -51,10 +46,10 @@
         android:text="Wybierz utwór konkretnego gracza"
         app:layout_constraintBottom_toTopOf="@+id/playerSongList"
         app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/poppins"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.79"
+
         />
 
     <LinearLayout
@@ -75,6 +70,7 @@
         <TextView
             android:id="@+id/tvChooseSong"
             android:textColor="@color/white"
+            android:fontFamily="@font/poppins"
             android:drawableTint="@color/white"
             android:drawableStart="@drawable/ic_baseline_music_note_24"
             android:textAlignment="center"
@@ -86,16 +82,21 @@
             android:text="Wybierz utwór" />
     </LinearLayout>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:background="@drawable/cornersemptypositive"
+        android:backgroundTint="#1CE65F"
+        android:padding="12dp"
         android:text="Zakończ rundę"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/startBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playerSongList"
-        app:layout_constraintVertical_bias="0.784" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.499" />
 </androidx.constraintlayout.widget.ConstraintLayout>

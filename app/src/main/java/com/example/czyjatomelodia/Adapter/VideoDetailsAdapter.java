@@ -1,12 +1,16 @@
 package com.example.czyjatomelodia.Adapter;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Model.Item;
@@ -23,12 +27,16 @@ public class VideoDetailsAdapter extends RecyclerView.Adapter<MyViewHolder> {
     private int selectedPos = RecyclerView.NO_POSITION;
     private boolean isSelected = false;
 
+
+
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         mListener = listener;
     }
 
     private Context context;
     private Item[] items;
+
 
     public VideoDetailsAdapter(Context context, Item[] items) {
         this.context = context;
@@ -42,6 +50,7 @@ public class VideoDetailsAdapter extends RecyclerView.Adapter<MyViewHolder> {
         return new MyViewHolder(itemView);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (items[position].getId().getVideoId() != null) {
@@ -60,13 +69,26 @@ public class VideoDetailsAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 }
             });
 
-            holder.textView.setText(items[position].getSnippet().getTitle());
+
+            String title = android.text.Html.fromHtml(items[position].getSnippet().getTitle(), android.text.Html.FROM_HTML_MODE_COMPACT).toString();
+
+
+
+
+            for (String phrase : holder.unwantedPhrases) {
+                title = title.replace(phrase, "");
+            }
+            holder.textView.setText(title);
             Picasso.get().load(items[position].getSnippet().getThumbnails().getMedium().getUrl()).into(holder.imageView);
 
             if (selectedPos == position) {
                 holder.cardBg.setBackgroundColor(Color.parseColor("#9f9cff"));
+                holder.textView.setTypeface(null, Typeface.BOLD);
+
             } else {
                 holder.cardBg.setBackgroundColor(Color.parseColor("#ffffff"));
+                holder.textView.setTypeface(null, Typeface.NORMAL);
+
             }
         } else {
             // Jeśli element nie jest filmem (jest kanałem), ukrywamy go w RecyclerView

@@ -6,21 +6,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@color/white"
+
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/ytTxt"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:background="@drawable/search_design"
 
-        app:iconifiedByDefault="false"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearSearch"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:queryHint="Wprowadź nazwę utworu" />
+
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:backgroundTint="@color/design_default_color_primary"
+            android:background="@color/background_default"
+            android:layout_height="0dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:drawablePadding="16dp"
+                android:textSize="22sp"
+                android:padding="22dp"
+                android:text="Wybierz swój utwór"
+                app:drawableLeftCompat="@drawable/ic_choose" />
+        </LinearLayout>
+
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/ytTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/search_design"
+
+            app:iconifiedByDefault="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryHint="Wprowadź nazwę utworu" />
+
+
+
+    </LinearLayout>
+
+
 
     <RelativeLayout
         android:id="@+id/left_layout"
@@ -30,7 +70,7 @@
         app:layout_constraintBottom_toTopOf="@+id/ytRecycle"
         app:layout_constraintEnd_toStartOf="@+id/btnSubmitSong"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ytTxt"
+        app:layout_constraintTop_toBottomOf="@+id/linearSearch"
         tools:ignore="MissingConstraints">
 
         <TextView
@@ -38,8 +78,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_margin="5dp"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:text="Wybrany utwór:"
@@ -51,71 +91,54 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/textView"
             android:layout_alignStart="@+id/textView"
-            android:textAlignment="center"
-
             android:layout_marginStart="0dp"
+
             android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:text="brak"
+            android:textAlignment="center"
             android:textStyle="italic"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView"
             app:layout_constraintVertical_bias="0.363" />
 
-        <!--
-        <Button
-            android:id="@+id/btnKurwa"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/tvSelectedSong"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="5dp"
-            android:text="Pierwsza" />
 
-        <Button
-            android:id="@+id/btnKd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="39dp"
-            android:layout_marginBottom="4dp"
-            android:text="Druga"
-            app:layout_constraintStart_toStartOf="parent" />
-        -->
     </RelativeLayout>
 
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSubmitSong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-
+        android:textColor="@color/white"
+        android:padding="16dp"
+        android:backgroundTint="@color/design_default_color_primary"
+        android:background="@drawable/cornersemptypositive"
         android:layout_marginEnd="10dp"
         android:text="Zatwierdź"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/ytRecycle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/left_layout"
-        app:layout_constraintTop_toBottomOf="@+id/ytTxt"
+        app:layout_constraintTop_toBottomOf="@+id/linearSearch"
         tools:ignore="MissingConstraints" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ytRecycle"
         android:layout_width="0dp"
         android:layout_height="0dp"
-
+        android:background="@drawable/separator_top"
         android:layout_marginTop="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ytTxt"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@+id/linearSearch"
+        app:layout_constraintVertical_bias="1.0">
 
     </androidx.recyclerview.widget.RecyclerView>
 

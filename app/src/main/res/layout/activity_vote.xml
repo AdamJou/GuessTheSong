@@ -18,7 +18,7 @@
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvWaiting"
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
@@ -34,7 +34,6 @@
         />
 
 
-
     <TextView
         android:id="@+id/tvWaiting"
         android:layout_width="wrap_content"
@@ -42,11 +41,11 @@
         android:text="Zagłosuj na wybranego przez siebie gracza"
         app:layout_constraintBottom_toTopOf="@+id/playerList"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.79"
-        />
+
+
+       />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -54,7 +53,8 @@
         android:background="@color/background_default"
         android:orientation="vertical"
         android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/tvWaiting"
+        android:id="@+id/linear_round"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -84,10 +84,14 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/mojNick"
+        android:id="@+id/tvSelectedPlayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:visibility="invisible"
+        android:padding="10dp"
+        android:fontFamily="@font/poppins"
+        android:background="@drawable/cornersempty"
+        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/confirmPickBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

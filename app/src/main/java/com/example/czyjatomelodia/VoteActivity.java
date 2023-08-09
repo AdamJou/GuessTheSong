@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,19 +38,21 @@ public class VoteActivity extends BaseActivity {
     String previousSong = "null";
     int roundNumber = 1;
     String selectedPlayerNickname = "null";
-    TextView songTitleTv, roundNumberTv, moj;
+    TextView songTitleTv, roundNumberTv, selectedPlayerTv;
     RecyclerView recyclerView;
     PlayerAdapter playerAdapter;
     ArrayList<Player> items;
     InfoDialog infoDialog;
     Button confirmPickBtn;
     private int selectedPosition = RecyclerView.NO_POSITION;
-
+    Animation alpha;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vote);
+
+        alpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
 
         Intent intent = getIntent();
 
@@ -57,7 +61,7 @@ public class VoteActivity extends BaseActivity {
             public void onSuccess(String nickname) {
                 curretPlayerNickname = nickname;
                 Log.e(TAG, "CURRENT PLAYER NAME " + curretPlayerNickname);
-                moj.setText(curretPlayerNickname);
+
                 DatabaseReference playersRef = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
 
                 playersRef.addValueEventListener(new ValueEventListener() {
@@ -105,7 +109,7 @@ public class VoteActivity extends BaseActivity {
         roundNumberTv = findViewById(R.id.tvRoundNumber);
         confirmPickBtn = findViewById(R.id.confirmPickBtn);
 
-        moj = findViewById(R.id.mojNick);
+        selectedPlayerTv = findViewById(R.id.tvSelectedPlayer);
         infoDialog = new InfoDialog(VoteActivity.this);
         recyclerView = findViewById(R.id.playerList);
         recyclerView.setHasFixedSize(true);
@@ -246,7 +250,9 @@ public class VoteActivity extends BaseActivity {
                 check(selectedPlayerNickname);
                 Log.e(TAG, "WYBRANY: " + selectedPlayerNickname);
                 //  selectedPlayerNickname="null";
-
+                selectedPlayerTv.setVisibility(View.VISIBLE);
+                selectedPlayerTv.startAnimation(alpha);
+                selectedPlayerTv.setText("Zagłosowano na: " + selectedPlayerNickname);
                 Log.e(TAG, "MOJ: " + curretPlayerNickname);
                 // playerAdapter.setOnItemClickListener(null);
                 confirmPickBtn.setEnabled(false);
@@ -271,6 +277,7 @@ public class VoteActivity extends BaseActivity {
 
                     String value = dataSnapshot.getValue(String.class);
                     songTitleTv.setText(value);
+                    selectedPlayerTv.setText("");
                     roundNumberTv.setText("Runda " + roundNumber);
                     confirmPickBtn.setVisibility(View.INVISIBLE);
                     isClicked = false;

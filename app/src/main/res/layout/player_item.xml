@@ -33,6 +33,7 @@
                 android:layout_centerHorizontal="true"
                 android:drawablePadding="-36dp"
                 android:textSize="18dp"
+                android:fontFamily="@font/poppins"
                 android:drawableTint="@color/colorPositive"
                 android:background="@drawable/cornersempty"
                 android:backgroundTint="@color/background_default"

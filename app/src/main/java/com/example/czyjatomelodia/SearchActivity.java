@@ -41,7 +41,7 @@ public class SearchActivity extends BaseActivity {
     private final String TAG = "INFORMACJE";
     DatabaseReference fReference;
     TextView selectedSong;
-    Button submit, ku, kd;
+    Button submit;
     FirebaseAuth fAuth;
     RecyclerView recyclerView;
     String nickname, isAdmin, roomID;
@@ -49,6 +49,7 @@ public class SearchActivity extends BaseActivity {
     private boolean isSearchExecuted = false;
     private ProgressDialog progressDialog;
     private Handler uiHandler;
+    private boolean isRightFadeAnimationExecuted = false;
 
 
     @Override
@@ -245,7 +246,15 @@ public class SearchActivity extends BaseActivity {
                 String title = items[position].getSnippet().getTitle();
                 //  Toast.makeText(SearchActivity.this, id, Toast.LENGTH_SHORT).show();
 
-                submit.setVisibility(View.VISIBLE);
+
+
+                selectedSong.setText(title);
+                if (!isRightFadeAnimationExecuted) {
+                    submit.setVisibility(View.VISIBLE);
+                    submit.startAnimation(rightfade);
+                    isRightFadeAnimationExecuted = true;
+                }
+
 
                 submit.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -254,16 +263,13 @@ public class SearchActivity extends BaseActivity {
                                 .getReference("Rooms").child(roomID).child("Players").child(nickname);
 
 
-                        // Map<String, Object> songInfo = new HashMap<>();
-                        //  songInfo.put("songID", id);
-
                         Log.i(TAG, id);
                         Log.i(TAG, roomID);
                         Log.i(TAG, nickname);
 
                         Map<String, Object> playerInfo = new HashMap<>();
                         playerInfo.put("songID", id);
-                        playerInfo.put("songName", title);
+                        playerInfo.put("songName", regexTitle(title));
 
                         fReference.updateChildren(playerInfo);
 
@@ -298,6 +304,43 @@ public class SearchActivity extends BaseActivity {
         recyclerView.setVisibility(View.VISIBLE);
 
 
+    }
+
+    private String regexTitle(String title) {
+
+         String[] unwantedPhrases = {
+                "Official Video",
+                "Official Music Video",
+                "Official Music Video",
+                "Official",
+                "Music",
+                "Video",
+                "Lyric Video",
+                "HD",
+                "HQ",
+                "4K",
+                "Remastered",
+                "Audio",
+                "Full Song",
+                "Extended Version",
+                "Original Version",
+                "Acoustic",
+                "Live Performance",
+                "with Lyrics",
+                "Official Lyric Video",
+                "Official Video Clip",
+                "[",
+                "]",
+                ")",
+                "(",
+
+        };
+
+        for (String phrase : unwantedPhrases) {
+            title = title.replace(phrase, "");
+        }
+
+        return title;
     }
 
 

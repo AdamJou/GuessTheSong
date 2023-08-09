@@ -3,6 +3,8 @@ package com.example.czyjatomelodia.Base;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,12 +23,16 @@ public class BaseActivity extends AppCompatActivity {
     private static final long DOUBLE_CLICK_TIME_DELTA = 2000;
     private long lastClickTime = 0;
     private static List<Activity> activityList = new ArrayList<>();
+    public Animation fade, leftfade,rightfade;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_CzyjaToMelodia_Fullscreen);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        leftfade = AnimationUtils.loadAnimation(this, R.anim.leftfade);
+        rightfade = AnimationUtils.loadAnimation(this, R.anim.rightfade);
+        fade = AnimationUtils.loadAnimation(this, R.anim.fadeanim);
 
         activityList.add(this);
     }

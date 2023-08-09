@@ -15,6 +15,37 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     public ImageView imageView;
     public TextView textView;
     public RelativeLayout cardBg;
+    public String[] unwantedPhrases = {
+            "Official Video",
+            "Official Music Video",
+            "Official Music Video",
+            "Official",
+            "Music",
+            "Video",
+            "Lyric Video",
+            "HD",
+            "HQ",
+            "4K",
+            "Remastered",
+            "Audio",
+            "Full Song",
+            "Extended Version",
+            "Original Version",
+            "Acoustic",
+            "Live Performance",
+            "with Lyrics",
+            "Official Lyric Video",
+            "Official Video Clip",
+            "[",
+            "]",
+            ")",
+            "(",
+
+    };
+
+
+
+
 
 
     public MyViewHolder(@NonNull View itemView) {

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,13 +29,14 @@ import java.util.HashSet;
 
 public class AdminActivity extends BaseActivity {
 
-    Button start, refresh,end;
+    Button  refresh,end;
     RecyclerView recyclerView;
     DatabaseReference fReference;
     PlayerViewHolder viewHolder;
     PlayerAdapter playerAdapter;
     ArrayList<Player> items;
     Integer last;
+    TextView adminInfo;
     int playersCount;
     String isAdmin, roomID, nickname;
     private static final String TAG = "ADMIN: ";
@@ -47,10 +49,11 @@ public class AdminActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-        start = findViewById(R.id.startBtn);
+
         recyclerView = findViewById(R.id.playerSongList);
         refresh = findViewById(R.id.refreshBtn);
         end = findViewById(R.id.btnEnd);
+        adminInfo=findViewById(R.id.tvAdminInfo);
         Intent intent = getIntent();
 
         nickname = intent.getStringExtra("nickname");
@@ -283,6 +286,8 @@ public class AdminActivity extends BaseActivity {
                 Log.e(TAG, "RUNDY: " + String.valueOf(numberOfRounds));
                 if(numberOfRounds==playersCount){
                     end.setVisibility(View.VISIBLE);
+                    adminInfo.setText("Brak utworów do odtworzenia.");
+
                 }
             }
 

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/corners_bg"
     android:layout_height="match_parent"
     tools:context=".PlayerList">
 
@@ -43,6 +43,7 @@
         android:layout_height="wrap_content"
         android:text="Odśwież"
         android:background="@drawable/cornersempty"
+        android:fontFamily="@font/poppins"
         android:drawableStart="@drawable/ic_baseline_refresh_24"
         android:drawablePadding="8dp"
         android:paddingStart="8dp"
