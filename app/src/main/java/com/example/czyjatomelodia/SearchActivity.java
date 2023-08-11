@@ -110,11 +110,9 @@ public class SearchActivity extends BaseActivity {
     private void Search(String query) {
 
 
-        String key2 = "AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
-        String key_fake = "AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76deo4";
-        String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
+    
         String val = query;
-        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet", val,  key2, "relevance", 10);
+        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet", val,  key, "relevance", 10);
 
         isSearchExecuted = false;
         videoModelCall.enqueue(new Callback<VideoDetails>() {
