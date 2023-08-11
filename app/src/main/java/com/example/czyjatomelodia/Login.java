@@ -2,7 +2,6 @@ package com.example.czyjatomelodia;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,88 +14,71 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Login extends AppCompatActivity {
 
-    EditText password,email;
+    EditText password, email;
     Boolean valid = true;
     Button loginSubmit;
     TextView loginToSignUp;
     private FirebaseAuth fAuth;
-    FirebaseFirestore fStore;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         fAuth = FirebaseAuth.getInstance();
-        fStore=FirebaseFirestore.getInstance();
-        email=findViewById(R.id.emailLogin);
-        password=findViewById(R.id.passwordLogin);
-        loginToSignUp=findViewById(R.id.loginToSignUp);
+        email = findViewById(R.id.emailLogin);
+        password = findViewById(R.id.passwordLogin);
+        loginToSignUp = findViewById(R.id.loginToSignUp);
         loginSubmit = findViewById(R.id.loginSubmit);
 
 
+        loginSubmit.setOnClickListener(view -> {
+            checkField(email);
+            checkField(password);
 
 
+            if (valid) {
+                fAuth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        Toast.makeText(Login.this, "Zalogowano pomyślnie", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
 
-        loginSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkField(email);
-                checkField(password);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
-
-                if(valid){
-                    fAuth.signInWithEmailAndPassword(email.getText().toString(),password.getText().toString()).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                        @Override
-                        public void onSuccess(AuthResult authResult) {
-                            Toast.makeText(Login.this,"Zalogowano pomyślnie",Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
-                    });
-                }
+                    }
+                });
             }
         });
 
 
-
-
-
-
-
-        loginToSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Register.class));
-            }
-        });
+        loginToSignUp.setOnClickListener(view -> startActivity(new Intent(getApplicationContext(), Register.class)));
 
 
     }
 
-    public boolean checkField(EditText textField){
-        if(textField.getText().toString().isEmpty()){
+    public boolean checkField(EditText textField) {
+        if (textField.getText().toString().isEmpty()) {
             textField.setError("To pole nie może być puste");
             valid = false;
-        }else{
-            valid=true;
+        } else {
+            valid = true;
         }
 
         return valid;
     }
 
-   @Override
+    @Override
     protected void onStart() {
         super.onStart();
-        if(FirebaseAuth.getInstance().getCurrentUser() != null){
-            startActivity(new Intent(getApplicationContext(),HomeActivity.class));
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             finish();
         }
     }

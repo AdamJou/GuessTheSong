@@ -6,12 +6,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Adapter.ScoreboardAdapter;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
 public class ScoreboardDialog extends Dialog {

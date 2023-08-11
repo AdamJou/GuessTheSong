@@ -5,10 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,21 +37,21 @@ public class VoteActivity extends BaseActivity {
     String previousSong = "null";
     int roundNumber = 1;
     String selectedPlayerNickname = "null";
-    TextView songTitleTv, roundNumberTv, selectedPlayerTv;
+    TextView songTitleTv, roundNumberTv, selectedPlayerTv, tvWaiting;
     RecyclerView recyclerView;
+    RelativeLayout spinner;
     PlayerAdapter playerAdapter;
-    ArrayList<Player> items;
-    InfoDialog infoDialog;
+    ArrayList<Player> items;    InfoDialog infoDialog;
     Button confirmPickBtn;
     private int selectedPosition = RecyclerView.NO_POSITION;
-    Animation alpha;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vote);
 
-        alpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
+
 
         Intent intent = getIntent();
 
@@ -106,9 +105,10 @@ public class VoteActivity extends BaseActivity {
         roomID = intent.getStringExtra("roomID");
         //  roomID="a1";
         songTitleTv = findViewById(R.id.tvSongTitle);
+        tvWaiting=findViewById(R.id.tvWaiting);
         roundNumberTv = findViewById(R.id.tvRoundNumber);
         confirmPickBtn = findViewById(R.id.confirmPickBtn);
-
+        spinner=findViewById(R.id.rv_Spinner);
         selectedPlayerTv = findViewById(R.id.tvSelectedPlayer);
         infoDialog = new InfoDialog(VoteActivity.this);
         recyclerView = findViewById(R.id.playerList);
@@ -173,6 +173,8 @@ public class VoteActivity extends BaseActivity {
 
                     confirmPickBtn.setVisibility(View.VISIBLE);
                     confirmPickBtn.setEnabled(true);
+                    confirmPickBtn.setAlpha(1.0f);
+                    confirmPickBtn.startAnimation(fade);
 
 
                 } else {
@@ -252,10 +254,13 @@ public class VoteActivity extends BaseActivity {
                 //  selectedPlayerNickname="null";
                 selectedPlayerTv.setVisibility(View.VISIBLE);
                 selectedPlayerTv.startAnimation(alpha);
+                spinner.setVisibility(View.VISIBLE);
+                tvWaiting.setText(R.string.waiting);
                 selectedPlayerTv.setText("Zagłosowano na: " + selectedPlayerNickname);
                 Log.e(TAG, "MOJ: " + curretPlayerNickname);
                 // playerAdapter.setOnItemClickListener(null);
                 confirmPickBtn.setEnabled(false);
+                confirmPickBtn.setVisibility(View.INVISIBLE);
                 playerAdapter.setBackgroundForPosition(selectedPosition, false);
             }
         });
@@ -278,11 +283,20 @@ public class VoteActivity extends BaseActivity {
                     String value = dataSnapshot.getValue(String.class);
                     songTitleTv.setText(value);
                     selectedPlayerTv.setText("");
+                    selectedPlayerTv.setVisibility(View.INVISIBLE);
                     roundNumberTv.setText("Runda " + roundNumber);
+                    tvWaiting.setText(R.string.vote);
+                    spinner.setVisibility(View.INVISIBLE);
+                    confirmPickBtn.setEnabled(false);
                     confirmPickBtn.setVisibility(View.INVISIBLE);
+                    playerAdapter.resetBackgroundColors();
+
                     isClicked = false;
                     playerAdapter.setBackgroundForPosition(selectedPosition, false);
                     selectedPosition = RecyclerView.NO_POSITION;
+
+
+
                     updateRecyclerView();
                 } else {
 

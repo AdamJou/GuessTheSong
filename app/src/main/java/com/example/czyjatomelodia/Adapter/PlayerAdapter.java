@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.czyjatomelodia.Player;
 import com.example.czyjatomelodia.PlayerViewHolder;
 import com.example.czyjatomelodia.R;
+import com.example.czyjatomelodia.VoteActivity;
 
 import java.util.ArrayList;
 
@@ -55,8 +56,10 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
     @Override
     public PlayerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.player_item, parent,false);
-        Animation animation = AnimationUtils.loadAnimation(context, R.anim.leftfade);
-        itemView.startAnimation(animation);
+        if (!(parent.getContext() instanceof VoteActivity)) {
+            Animation animation = AnimationUtils.loadAnimation(parent.getContext(), R.anim.leftfade);
+            itemView.startAnimation(animation);
+        }
 
         return new PlayerViewHolder(itemView);
     }
@@ -135,4 +138,9 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerViewHolder> {
 
     }
 
+
+    public void resetBackgroundColors() {
+        selectedPosition = RecyclerView.NO_POSITION;
+        notifyDataSetChanged();
+    }
 }

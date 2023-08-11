@@ -5,8 +5,7 @@ import android.graphics.drawable.Drawable;
 public class Player {
     String name;
     String songID;
-    boolean isAdmin=false;
-    boolean isCorrect=false;
+    boolean isCorrect = false;
     int backgroundColor = 0;
     int playerID;
     Drawable drawable;
@@ -19,7 +18,8 @@ public class Player {
         isCorrect = correct;
     }
 
-    private Player() {}
+    private Player() {
+    }
 
     public Player(String name, int playerID) {
         this.name = name;
@@ -30,9 +30,6 @@ public class Player {
         return playerID;
     }
 
-    public void setPlayerID(int playerID) {
-        this.playerID = playerID;
-    }
 
     public Player(String name) {
         this.name = name;
@@ -43,11 +40,11 @@ public class Player {
         this.songID = songID;
     }
 
-    public String getSongID(){
+    public String getSongID() {
         return songID;
     }
 
-    public void setSongID(String songID){
+    public void setSongID(String songID) {
         this.songID = songID;
     }
 

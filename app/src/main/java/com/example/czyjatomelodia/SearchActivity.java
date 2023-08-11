@@ -22,7 +22,6 @@ import com.example.czyjatomelodia.Model.Item;
 import com.example.czyjatomelodia.Model.VideoDetails;
 import com.example.czyjatomelodia.Network.NetworkInstance;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.github.muddz.styleabletoast.StyleableToast;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,20 +56,16 @@ public class SearchActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        // btn = (Button)findViewById(R.id.btnYt);
-        //  txt=(EditText) findViewById(R.id.ytTxt);
         fAuth = FirebaseAuth.getInstance();
-        // username=findViewById(R.id.userUID);
 
 
         selectedSong = findViewById(R.id.tvSelectedSong);
         recyclerView = findViewById(R.id.ytRecycle);
         submit = findViewById(R.id.btnSubmitSong);
         search = findViewById(R.id.ytTxt);
-        // ku=findViewById(R.id.btnKurwa);
-        // kd=findViewById(R.id.btnKd);
+
         progressDialog = new ProgressDialog(SearchActivity.this);
-        progressDialog.setMessage("Ładowanie..");
+        progressDialog.setMessage("Ładowanie...");
         progressDialog.setCancelable(false);
         uiHandler = new Handler(Looper.getMainLooper());
 
@@ -100,88 +96,13 @@ public class SearchActivity extends BaseActivity {
         isAdmin = intent.getStringExtra("isAdmin");
         roomID = intent.getStringExtra("id");
         FirebaseManager.getInstance().clearSongDataForAllPlayers(roomID);
-        FirebaseUser user = fAuth.getCurrentUser();
+
 
 
         Log.e(TAG, " CHECK IF ADMIN " + isAdmin);
         String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        //  username.setText(user.getUid());
 
 
-        /*
-        ku.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
-                        .getReference("Rooms").child(roomID).child("Players").child(nickname);
-
-
-                Map<String, Object> playerInfo = new HashMap<>();
-                playerInfo.put("songID", "_JZom_gVfuw");
-                playerInfo.put("songName", "The Notorious B.I.G. - Juicy (Official Video) [4K]");
-
-                fReference.updateChildren(playerInfo);
-
-                Toast.makeText(SearchActivity.this, nickname, Toast.LENGTH_SHORT).show();
-                submit.setEnabled(false);
-
-                selectedSong.setText("The Notorious B.I.G. - Juicy (Official Video) [4K]");
-                if (isAdmin.equals("true")) {
-                    Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname",nickname)
-                            .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
-                    startActivity(intent);
-                    finish();
-
-                }else{
-
-                    isSearchExecuted=true;
-                    Intent intent = new Intent(getApplicationContext(), VoteActivity.class).putExtra("nickname",nickname).
-                            putExtra("roomID",roomID);
-                    startActivity(intent);
-                    finish();
-
-                }
-            }
-        });
-
-
-        kd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-
-                fReference =  FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players").child(nickname);
-
-
-                Map<String, Object> playerInfo = new HashMap<>();
-                playerInfo.put("songID", "DzfaCVQfYXU");
-                playerInfo.put("songName", "SENTINO - Niebieski Ptak");
-
-                fReference.updateChildren(playerInfo);
-
-                Toast.makeText(SearchActivity.this, nickname, Toast.LENGTH_SHORT).show();
-                submit.setEnabled(false);
-
-                selectedSong.setText("The Notorious B.I.G. - Juicy (Official Video) [4K]");
-                if (isAdmin.equals("true")) {
-                    Intent intent = new Intent(SearchActivity.this, AdminActivity.class).putExtra("nickname",nickname)
-                            .putExtra("isAdmin",isAdmin).putExtra("roomID",roomID);
-                    startActivity(intent);
-                    finish();
-
-                }else{
-
-                    isSearchExecuted=true;
-                    Intent intent = new Intent(getApplicationContext(), VoteActivity.class).putExtra("nickname",nickname).
-                            putExtra("roomID",roomID);
-                    startActivity(intent);
-
-                }
-            }
-        });
-
-*/
 
     }
 
@@ -190,30 +111,40 @@ public class SearchActivity extends BaseActivity {
 
 
         String key2 = "AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76dmo4";
+        String key_fake = "AIzaSyC2Eg7NOATbUVFBjmlru8SrPm-Uw76deo4";
         String key = "AIzaSyAmyFm-olEP5Ut3h5DoHMWQnbK06C7qSSk";
         String val = query;
-        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet", val, key2, "relevance", 10);
+        Call<VideoDetails> videoModelCall = NetworkInstance.getInstance().getAPI().getVideoData("snippet", val,  key2, "relevance", 10);
 
         isSearchExecuted = false;
         videoModelCall.enqueue(new Callback<VideoDetails>() {
             @Override
             public void onResponse(Call<VideoDetails> call, Response<VideoDetails> response) {
 
-                assert response.body() != null;
-
-                uiHandler.post(() -> setRecycleView(response.body().getItems()));
-                dismissDialog();
-
-
+                if (response.isSuccessful()) {
+                    assert response.body() != null;
+                    setRecycleView(response.body().getItems());
+                    dismissDialog();
+                } else {
+                    showServerErrorToast();
+                    dismissDialog();
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<VideoDetails> call, Throwable t) {
                 //isSearchExecuted = false;
                 dismissDialog();
+                showServerErrorToast();
+
 
             }
         });
+    }
+
+    private void showServerErrorToast() {
+        StyleableToast.makeText(getApplicationContext(), "Błąd serwera!", Toast.LENGTH_LONG, R.style.backToast).show();
+
     }
 
 

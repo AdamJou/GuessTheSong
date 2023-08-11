@@ -14,10 +14,10 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.czyjatomelodia.Model.Item;
-import com.example.czyjatomelodia.MyViewHolder;
+import com.example.czyjatomelodia.SongViewHolder;
 import com.example.czyjatomelodia.R;
 import com.squareup.picasso.Picasso;
-public class VideoDetailsAdapter extends RecyclerView.Adapter<MyViewHolder> {
+public class VideoDetailsAdapter extends RecyclerView.Adapter<SongViewHolder> {
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -45,14 +45,14 @@ public class VideoDetailsAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item, parent, false);
-        return new MyViewHolder(itemView);
+        return new SongViewHolder(itemView);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull SongViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (items[position].getId().getVideoId() != null) {
             holder.itemView.setVisibility(View.VISIBLE);
             holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));

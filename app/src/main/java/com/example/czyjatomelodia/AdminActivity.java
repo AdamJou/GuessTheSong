@@ -7,10 +7,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,17 +22,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class AdminActivity extends BaseActivity {
 
-    Button  refresh,end;
+    Button refresh, end;
     RecyclerView recyclerView;
     DatabaseReference fReference;
-    PlayerViewHolder viewHolder;
     PlayerAdapter playerAdapter;
     ArrayList<Player> items;
     Integer last;
@@ -41,7 +38,6 @@ public class AdminActivity extends BaseActivity {
     String isAdmin, roomID, nickname;
     private static final String TAG = "ADMIN: ";
     public boolean isDataLoaded = false;
-    public boolean everyoneSelected = false;
     private ProgressDialog progressDialog;
     private Handler uiHandler;
 
@@ -53,13 +49,12 @@ public class AdminActivity extends BaseActivity {
         recyclerView = findViewById(R.id.playerSongList);
         refresh = findViewById(R.id.refreshBtn);
         end = findViewById(R.id.btnEnd);
-        adminInfo=findViewById(R.id.tvAdminInfo);
+        adminInfo = findViewById(R.id.tvAdminInfo);
         Intent intent = getIntent();
 
         nickname = intent.getStringExtra("nickname");
         roomID = intent.getStringExtra("roomID");
         isAdmin = intent.getStringExtra("isAdmin");
-
 
 
         fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/")
@@ -78,90 +73,81 @@ public class AdminActivity extends BaseActivity {
         progressDialog.setCancelable(false);
         uiHandler = new Handler(Looper.getMainLooper());
 
-    showDialog();
-    if(isAdmin.equals("true")) {
-        DatabaseReference playersRef = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
-        playersRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                int playerCount = (int) dataSnapshot.getChildrenCount();
-                int readyPlayerCount = 0;
+        showDialog();
+        if (isAdmin.equals("true")) {
+            DatabaseReference playersRef = FirebaseManager.getInstance().getDatabaseReference().child("Rooms").child(roomID).child("Players");
+            playersRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@androidx.annotation.NonNull DataSnapshot dataSnapshot) {
+                    int playerCount = (int) dataSnapshot.getChildrenCount();
+                    int readyPlayerCount = 0;
 
-                for (DataSnapshot playerSnapshot : dataSnapshot.getChildren()) {
-                    String songID = playerSnapshot.child("songID").getValue(String.class);
-                    String songName = playerSnapshot.child("songName").getValue(String.class);
-                    if (!songID.equals("null") && !songName.equals("null")) {
-                        readyPlayerCount++;
+                    for (DataSnapshot playerSnapshot : dataSnapshot.getChildren()) {
+                        String songID = playerSnapshot.child("songID").getValue(String.class);
+                        String songName = playerSnapshot.child("songName").getValue(String.class);
+                        if (!songID.equals("null") && !songName.equals("null")) {
+                            readyPlayerCount++;
+                        }
                     }
-                }
-                if (playerCount == readyPlayerCount) {
-                    dismissDialog();
-                    playerAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (playerCount == readyPlayerCount) {
+                        dismissDialog();
+                        playerAdapter.setOnItemClickListener((parent, view, position, id) -> {
                             // przekazanie tytułu piosenki do metody onItemClick
                             FirebaseManager.getInstance().incrementNumberOfRounds(roomID);
                             String ytSongID = items.get(position).getSongID();
                             String ytSongTitle = items.get(position).getName();
                             // uruchomienie nowej aktywności i przekazanie tytułu
-                            Intent intent = new Intent(AdminActivity.this, PlaySongActivity.class);
-                            intent.putExtra("songID", ytSongID);
-                            intent.putExtra("nick", nickname);
-                            intent.putExtra("songTitle", ytSongTitle);
-                            intent.putExtra("roomID", roomID);
+                            Intent intent1 = new Intent(AdminActivity.this, PlaySongActivity.class);
+                            intent1.putExtra("songID", ytSongID);
+                            intent1.putExtra("nick", nickname);
+                            intent1.putExtra("songTitle", ytSongTitle);
+                            intent1.putExtra("roomID", roomID);
 
                             //filtorwanie listy
                             items.get(position).setSongID("played");
                             last = position;
                             FirebaseManager.getInstance().setUnselectedForNonAdminPlayers(roomID);
                             FirebaseManager.getInstance().clearSongDataForAllPlayers(roomID);
-                            FirebaseManager.getInstance().setPlayingStatusInRoom(roomID,"playing");
+                            FirebaseManager.getInstance().setPlayingStatusInRoom(roomID, "playing");
                             playerAdapter.clearSelection();
-                            startActivity(intent);
+                            startActivity(intent1);
 
-                        }
-                    });
+                        });
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Obsługa błędów
-            }
-        });
+                @Override
+                public void onCancelled(@androidx.annotation.NonNull DatabaseError databaseError) {
+                    // Obsługa błędów
+                }
+            });
 
-    }
-
-
-
-
+        }
 
 
         recyclerView.setAdapter(playerAdapter);
 
-            //recycle view setup
+        //recycle view setup
         fReference.addValueEventListener(new ValueEventListener() {
-            HashSet<String> userNames = new HashSet<>();
+            final HashSet<String> userNames = new HashSet<>();
 
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 isDataLoaded = false;
-             //   Integer playerCount =0;
+                //   Integer playerCount =0;
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
 
                     String name = dataSnapshot.getKey();
                     DataSnapshot song = dataSnapshot.child("songName");
                     DataSnapshot ytID = dataSnapshot.child("songID");
-                    DataSnapshot admin = dataSnapshot.child("isAdmin");
                     name = name + " : " + song.getValue().toString();
                     String songID = ytID.getValue().toString();
                     if (!userNames.contains(name)) { // sprawdzamy, czy użytkownik już istnieje na liście
                         userNames.add(name);
-                        Player player = new Player(name,songID);
+                        Player player = new Player(name, songID);
                         Log.i(TAG, player.getSongID());
-                        if(!songID.equals("null"))
-                        {
+                        if (!songID.equals("null")) {
                             items.add(player);
                             //playerCount++;
                         }
@@ -196,7 +182,7 @@ public class AdminActivity extends BaseActivity {
         FirebaseManager.getInstance().getNumberOfPlayersInRoom(roomID, new FirebaseManager.OnNumberOfPlayersCallback() {
             @Override
             public void onSuccess(int numberOfPlayers) {
-                playersCount=numberOfPlayers;
+                playersCount = numberOfPlayers;
             }
 
             @Override
@@ -206,44 +192,25 @@ public class AdminActivity extends BaseActivity {
         });
 
 
-
         //Round end
 
 
-        end.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //FirebaseManager.getInstance().setNumberOfRounds(roomID);
-                FirebaseManager.getInstance().setPlayingStatusInRoom(roomID,"finished");
-                FirebaseManager.getInstance().assignDJ(roomID, new FirebaseManager.OnDJAssignedCallback() {
-                    @Override
-                    public void onDJAssigned(String djId) {
-
-                        FirebaseManager.getInstance().checkIfCurrentUserIsAdmin( roomID,new FirebaseManager.OnIsAdminCallback() {
-                            @Override
-                            public void onIsAdmin(String isAdmin) {
-                                FirebaseManager.getInstance().setPlayingStatusInRoom(roomID,"waiting");
-                            }
-                        });
-                    }
-                });
+        end.setOnClickListener(v -> {
+            //FirebaseManager.getInstance().setNumberOfRounds(roomID);
+            FirebaseManager.getInstance().setPlayingStatusInRoom(roomID, "finished");
+            FirebaseManager.getInstance().assignDJ(roomID, djId -> FirebaseManager.getInstance()
+                    .checkIfCurrentUserIsAdmin(
+                            roomID, isAdmin -> FirebaseManager.getInstance().setPlayingStatusInRoom(roomID, "waiting")));
 
 
+            Intent intent12 = new Intent(AdminActivity.this, ResultActivity.class);
+            intent12.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent12.putExtra("roomID", roomID);
+            startActivity(intent12);
+            finish();
 
 
-                Intent intent = new Intent(AdminActivity.this, ResultActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.putExtra("roomID",roomID);
-                startActivity(intent);
-                finish();
-
-
-
-
-            }
         });
-
-
 
 
     }
@@ -252,6 +219,7 @@ public class AdminActivity extends BaseActivity {
     private void showDialog() {
         progressDialog.show();
     }
+
     private void dismissDialog() {
         progressDialog.dismiss();
     }
@@ -269,22 +237,13 @@ public class AdminActivity extends BaseActivity {
     }
 
 
-    public void setBackgroundForPlayer(int position, int color) {
-        Player p = items.get(position);
-        p.setBackgroundColor(color);
-        playerAdapter.notifyItemChanged(position);
-    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
         FirebaseManager.getInstance().getNumberOfRounds(roomID, new FirebaseManager.OnNumberOfRoundsCallback() {
             @Override
             public void onSuccess(int numberOfRounds) {
-                Log.e(TAG, "GRACZE: " + playersCount);
-                Log.e(TAG, "RUNDY: " + String.valueOf(numberOfRounds));
-                if(numberOfRounds==playersCount){
+                if (numberOfRounds == playersCount) {
                     end.setVisibility(View.VISIBLE);
                     adminInfo.setText("Brak utworów do odtworzenia.");
 
@@ -295,7 +254,7 @@ public class AdminActivity extends BaseActivity {
             public void onError(String errorMessage) {
 
             }
-     });
+        });
 
     }
 
@@ -314,21 +273,14 @@ public class AdminActivity extends BaseActivity {
         items.clear();
         items.addAll(filteredItems);
         // Wywołanie metody notifyDataSetChanged() w wątku UI
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                playerAdapter.notifyDataSetChanged();
-            }
-        });
-
-
+        runOnUiThread(() -> playerAdapter.notifyDataSetChanged());
 
 
         FirebaseManager.getInstance().getNumberOfRounds(roomID, new FirebaseManager.OnNumberOfRoundsCallback() {
             @Override
             public void onSuccess(int numberOfRounds) {
-                 Log.e(TAG, String.valueOf(numberOfRounds));
-                if(numberOfRounds==playersCount){
+                Log.e(TAG, String.valueOf(numberOfRounds));
+                if (numberOfRounds == playersCount) {
                     end.setVisibility(View.VISIBLE);
                 }
             }
@@ -340,14 +292,7 @@ public class AdminActivity extends BaseActivity {
         });
 
 
-
-
-
-
-
-        }
-
-
+    }
 
 
 }

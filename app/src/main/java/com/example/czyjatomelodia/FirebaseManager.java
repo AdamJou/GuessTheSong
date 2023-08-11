@@ -1,5 +1,7 @@
 package com.example.czyjatomelodia;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -8,8 +10,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +66,7 @@ public class FirebaseManager {
             callback.onError("User not logged in");
         }
     }
+
     public void deleteRoundNodes(String roomId) {
         DatabaseReference roundsRef = databaseReference.child("Rooms").child(roomId);
         roundsRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -90,6 +91,7 @@ public class FirebaseManager {
         DatabaseReference roomRef = databaseReference.child("Rooms").child(roomID);
         roomRef.child("NumberOfRounds").setValue(0);
     }
+
     public void setCurrentSong(String roomID) {
         DatabaseReference roomRef = databaseReference.child("Rooms").child(roomID);
         roomRef.child("Current").setValue("BRAK");
@@ -117,9 +119,9 @@ public class FirebaseManager {
 
     public interface OnNumberOfRoundsCallback {
         void onSuccess(int numberOfRounds);
+
         void onError(String errorMessage);
     }
-
 
 
     public void getPlayersWithPoints(String roomID, final OnPlayersWithPointsCallback callback) {
@@ -146,6 +148,7 @@ public class FirebaseManager {
 
     public interface OnPlayersWithPointsCallback {
         void onSuccess(List<Player> playersWithPoints);
+
         void onError(String errorMessage);
     }
 
@@ -165,8 +168,7 @@ public class FirebaseManager {
                     String isSelected = playerSnapshot.child("selected").getValue(String.class);
 
                     if (isAdmin.equals("false") || isAdmin.equals("was")) {
-                        if(isSelected.equals("false"))
-                        {
+                        if (isSelected.equals("false")) {
                             allPlayersSelected = false;
                             callback.onPlayerNotSelected(false);
                             break;
@@ -187,7 +189,9 @@ public class FirebaseManager {
 
     public interface OnAllPlayersSelectedCallback {
         void onSuccess(boolean allPlayersSelected);
+
         void onError(String errorMessage);
+
         void onPlayerNotSelected(boolean notSelected);
     }
 
@@ -221,11 +225,7 @@ public class FirebaseManager {
     }
 
 
-
-
-
-
-    public void setReady(String roomID,String name) {
+    public void setReady(String roomID, String name) {
         DatabaseReference selectedRef = databaseReference.child("Rooms").child(roomID).child("Players").child(name).child("songID");
         selectedRef.setValue("ready");
     }
@@ -262,7 +262,6 @@ public class FirebaseManager {
     }
 
 
-
     public void getCurrentAdminNickname(String roomId, final OnNicknameCallback callback) {
         DatabaseReference playersRef = databaseReference.child("Rooms").child(roomId).child("Players");
         playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -288,11 +287,6 @@ public class FirebaseManager {
         });
     }
 
-    public void stopListeningForPlayerChanges() {
-        if (playersRef != null && playersListener != null) {
-            playersRef.removeEventListener(playersListener);
-        }
-    }
 
     public void assignDJ(String roomId, final OnDJAssignedCallback callback) {
         DatabaseReference playersRef = databaseReference.child("Rooms").child(roomId).child("Players");
@@ -373,13 +367,12 @@ public class FirebaseManager {
     }
 
 
-
     public void checkIfCurrentUserIsAdmin(String roomID, final OnIsAdminCallback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String uid = user.getUid();
 
-            DatabaseReference userRef= databaseReference.child("Users").child(uid).child("Nickname");
+            DatabaseReference userRef = databaseReference.child("Users").child(uid).child("Nickname");
 
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -422,7 +415,6 @@ public class FirebaseManager {
     }
 
 
-
     public void checkIfAllPlayersWereDJs(String roomId, final OnAllPlayersDJsCallback callback) {
         DatabaseReference roomRef = databaseReference.child("Rooms").child(roomId).child("Players");
 
@@ -450,6 +442,7 @@ public class FirebaseManager {
     public interface OnAllPlayersDJsCallback {
         void onAllPlayersDJs();
     }
+
     public void checkVotesForOwner(String roomID, final OnCheckVotesForOwnerCallback callback) {
         DatabaseReference roomRef = databaseReference.child("Rooms").child(roomID);
         roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -513,6 +506,7 @@ public class FirebaseManager {
 
     public interface OnCheckVotesForOwnerCallback {
         void onVotesChecked(boolean additionalPointAdded);
+
         void onError(String errorMessage);
     }
 
@@ -584,9 +578,9 @@ public class FirebaseManager {
 
     public interface OnNumberOfPlayersCallback {
         void onSuccess(int numberOfPlayers);
+
         void onError(String errorMessage);
     }
-
 
 
     public void checkIfMoreThanTwoPlayersInRoom(String roomId, final OnCheckPlayersCountCallback callback) {
@@ -615,11 +609,9 @@ public class FirebaseManager {
 
     public interface OnCheckPlayersCountCallback {
         void onMoreThanTwoPlayers(boolean moreThanTwoPlayers);
+
         void onError(String errorMessage);
     }
-
-
-
 
 
     public void incrementNumberOfRounds(String roomID) {
@@ -642,16 +634,11 @@ public class FirebaseManager {
     }
 
 
-
-
-
-
     public interface OnNicknameCallback {
         void onSuccess(String nickname);
+
         void onError(String errorMessage);
     }
-
-
 
 
 }

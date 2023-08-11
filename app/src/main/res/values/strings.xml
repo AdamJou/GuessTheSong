@@ -13,4 +13,7 @@
     <string name="emailLogin">E-mail</string>
     <string name="roomName">Pokój gracza: </string>
     <string name="key">KOD: </string>
+    <string name="endgame">KONIEC GRY! Kiknij aby przejsc do menu!</string>
+    <string name="waiting">Oczekiwanie na głosy pozostałych graczy</string>
+    <string name="vote">Zagłosuj na wybranego przez siebie gracza</string>
 </resources>

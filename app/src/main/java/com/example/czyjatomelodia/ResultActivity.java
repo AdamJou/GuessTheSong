@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -38,7 +37,7 @@ public class ResultActivity extends BaseActivity {
     RecyclerView recyclerView;
     ArrayList<Player> items;
     ImageButton ready;
-    Button next, previous,scoreboard;
+    Button next, previous, scoreboard;
     int current = 1;
     int nor = Integer.MAX_VALUE;
 
@@ -48,7 +47,7 @@ public class ResultActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        scoreboard=findViewById(R.id.btnScoreboard);
+        scoreboard = findViewById(R.id.btnScoreboard);
         next = findViewById(R.id.btnNext);
         tvReady = findViewById(R.id.tvReady);
         previous = findViewById(R.id.btnPrevious);
@@ -58,7 +57,7 @@ public class ResultActivity extends BaseActivity {
         recyclerView = findViewById(R.id.resultRecycle);
         songTitle = findViewById(R.id.tvRoundSongInfo);
         Intent intent = getIntent();
-         roomID=intent.getStringExtra("roomID");
+        roomID = intent.getStringExtra("roomID");
         //roomID = "g1";
 
         FirebaseManager.getInstance().checkIfCurrentUserIsAdmin(roomID, isAdmin -> {
@@ -70,7 +69,7 @@ public class ResultActivity extends BaseActivity {
 
         FirebaseManager.getInstance().checkIfAllPlayersWereDJs(roomID, () -> {
 
-            tvReady.setText("KONIEC GRY! Kiknij aby przejsc do menu!");
+            tvReady.setText(R.string.endgame);
             ready.setOnClickListener(v -> {
                 Intent intent1 = new Intent(ResultActivity.this, HomeActivity.class);
                 startActivity(intent1);
@@ -84,25 +83,18 @@ public class ResultActivity extends BaseActivity {
         setResults();
 
 
-
-
-        scoreboard.setOnClickListener(new View.OnClickListener() {
+        scoreboard.setOnClickListener(v -> FirebaseManager.getInstance().getAllPlayersWithPoints(roomID, new FirebaseManager.OnPlayersWithPointsCallback() {
             @Override
-            public void onClick(View v) {
-                FirebaseManager.getInstance().getAllPlayersWithPoints(roomID, new FirebaseManager.OnPlayersWithPointsCallback() {
-                    @Override
-                    public void onSuccess(List<Player> playersWithPoints) {
+            public void onSuccess(List<Player> playersWithPoints) {
 
-                        ScoreboardDialog.show(ResultActivity.this, playersWithPoints);
-                    }
-
-                    @Override
-                    public void onError(String errorMessage) {
-                        // Tutaj możesz obsłużyć ewentualne błędy
-                    }
-                });
+                ScoreboardDialog.show(ResultActivity.this, playersWithPoints);
             }
-        });
+
+            @Override
+            public void onError(String errorMessage) {
+                // Tutaj możesz obsłużyć ewentualne błędy
+            }
+        }));
 
 
         FirebaseManager firebaseManager = FirebaseManager.getInstance();

@@ -33,42 +33,39 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class PlayerList<isDataLoaded> extends BaseActivity {
+public class PlayerList extends BaseActivity {
 
     RecyclerView recyclerView;
     DatabaseReference fReference;
     PlayerAdapter playerAdapter;
     ArrayList<Player> items;
     LinearLayout linearLayout;
-    Button startGame,refresh;
-    String isAdmin, roomID,nickname;
-    TextView roomKey,roomName;
+    Button startGame, refresh;
+    String isAdmin, roomID, nickname;
+    TextView roomKey, roomName;
     private static final String TAG = "PlayerList";
     public boolean isDataLoaded = false;
-    private boolean moreThanTwoPlayers = false;
     private Handler handler = new Handler();
-    Animation fade,alpha;
+    Animation fade, alpha;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player_list);
 
         Intent intent = getIntent();
-        nickname=intent.getStringExtra("nickname");
-         roomID = intent.getStringExtra("roomID");
-         isAdmin = intent.getStringExtra("isAdmin");
+        nickname = intent.getStringExtra("nickname");
+        roomID = intent.getStringExtra("roomID");
+        isAdmin = intent.getStringExtra("isAdmin");
 
 
-        refresh=findViewById(R.id.refreshBtn);
+        refresh = findViewById(R.id.refreshBtn);
         startGame = findViewById(R.id.startGameBtn);
-        roomName=findViewById(R.id.tvRoomName);
-        roomKey=findViewById(R.id.tvRoomKey);
+        roomName = findViewById(R.id.tvRoomName);
+        roomKey = findViewById(R.id.tvRoomKey);
         fade = AnimationUtils.loadAnimation(this, R.anim.leftfade);
         alpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
         initializeText();
-
-
-
 
 
         linearLayout = findViewById(R.id.playerLinearLayout);
@@ -78,62 +75,50 @@ public class PlayerList<isDataLoaded> extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-
-
         items = new ArrayList<>();
-        playerAdapter = new PlayerAdapter(this,items,recyclerView);
+        playerAdapter = new PlayerAdapter(this, items, recyclerView);
         recyclerView.setAdapter(playerAdapter);
 
-        refresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        refresh.setOnClickListener(view -> {
 
-               // buttonVisibility();
-                for (int i = 0; i < items.size(); i++) {
-                    animateRecyclerViewItem(i);
-                }
-
+            // buttonVisibility();
+            for (int i = 0; i < items.size(); i++) {
+                animateRecyclerViewItem(i);
             }
+
         });
 
 
-
-        startGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               changeStatus();
-            }
-        });
+        startGame.setOnClickListener(view -> changeStatus());
 
         //Fill recycle
         fReference.addValueEventListener(new ValueEventListener() {
             HashSet<String> userNames = new HashSet<>();
 
-            int iterator=0;
+            int iterator = 0;
+
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                isDataLoaded=false;
+                isDataLoaded = false;
                 buttonVisibility();
-                int delay = 0; // Początkowy opóźnienie
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     String name = dataSnapshot.getKey();
-                    DataSnapshot admin= dataSnapshot.child("isAdmin");
+                    DataSnapshot admin = dataSnapshot.child("isAdmin");
                     if (!userNames.contains(name)) { // sprawdzamy, czy użytkownik już istnieje na liście
                         userNames.add(name);
                         Player player = new Player(name);
                         items.add(player);
 
                         if (admin.toString().equals("DataSnapshot { key = isAdmin, value = true }")) {
-                            playerAdapter.setBackgroundForPosition(iterator,true);
+                            playerAdapter.setBackgroundForPosition(iterator, true);
 
-                        }else{
+                        } else {
                             iterator++;
                         }
                         if (playerAdapter != null) {
                             int position = playerAdapter.getItemCount() - 1;
                             playerAdapter.notifyItemInserted(position);
                         }
-
 
 
                     }
@@ -157,8 +142,8 @@ public class PlayerList<isDataLoaded> extends BaseActivity {
                 String status = dataSnapshot.getValue(String.class);
                 if (status != null && status.equals("running")) {
 
-                    Intent intent = new Intent(getApplicationContext(), SearchActivity.class).putExtra("nickname",nickname)
-                            .putExtra("isAdmin",isAdmin).putExtra("id", roomID);
+                    Intent intent = new Intent(getApplicationContext(), SearchActivity.class).putExtra("nickname", nickname)
+                            .putExtra("isAdmin", isAdmin).putExtra("id", roomID);
                     startActivity(intent);
                 }
             }
@@ -169,8 +154,6 @@ public class PlayerList<isDataLoaded> extends BaseActivity {
                 Log.e(TAG, "Failed to read value.", databaseError.toException());
             }
         });
-
-
 
 
     }
@@ -233,14 +216,13 @@ public class PlayerList<isDataLoaded> extends BaseActivity {
     }
 
     private void buttonVisibility() {
-        if(isAdmin.equals("true")) {
-
+        if (isAdmin.equals("true")) {
 
 
             FirebaseManager.getInstance().checkIfMoreThanTwoPlayersInRoom(roomID, new FirebaseManager.OnCheckPlayersCountCallback() {
                 @Override
                 public void onMoreThanTwoPlayers(boolean moreThanTwo) {
-                    if(moreThanTwo){
+                    if (moreThanTwo) {
                         startGame.setVisibility(View.VISIBLE);
                         startGame.startAnimation(alpha);
                     }
@@ -253,8 +235,6 @@ public class PlayerList<isDataLoaded> extends BaseActivity {
 
                 }
             });
-
-
 
 
         }

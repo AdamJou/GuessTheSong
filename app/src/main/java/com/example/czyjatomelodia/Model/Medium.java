@@ -21,16 +21,12 @@ public class Medium {
     public void setUrl(String url){
         this.url=url;
     }
-
-
     public Integer getWidth(){
         return width;
     }
     public void setWidth(Integer width){
         this.width=width;
     }
-
-
     public Integer getHeight(){
         return height;
     }

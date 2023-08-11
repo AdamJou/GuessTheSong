@@ -4,20 +4,13 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.example.czyjatomelodia.Base.BaseActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,13 +27,11 @@ public class HomeActivity extends BaseActivity implements JoinDialog.JoinDialogL
 
     private MediaPlayer mediaPlayer;
     DatabaseReference fReference;
-    FirebaseDatabase fDatabase;
     FirebaseAuth fAuth;
     ImageView logo;
     Button create, join, logout;
     TextView username;
     String nick;
-    Animation fade, leftfade,rightfade;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,93 +42,68 @@ public class HomeActivity extends BaseActivity implements JoinDialog.JoinDialogL
         create = findViewById(R.id.createGameBtn);
         join = findViewById(R.id.joinGameBtn);
         logout = findViewById(R.id.btnLogout);
-        logo=findViewById(R.id.logo);
+        logo = findViewById(R.id.logo);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.intro);
-      //  mediaPlayer.start();
+        //  mediaPlayer.start();
 
-        FirebaseUser user = fAuth.getCurrentUser();
-        leftfade = AnimationUtils.loadAnimation(this, R.anim.leftfade);
-        rightfade = AnimationUtils.loadAnimation(this, R.anim.rightfade);
-        fade = AnimationUtils.loadAnimation(this, R.anim.fadeanim);
-        //   username.setText(user.getUid());
+
         String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        //  fDatabase = FirebaseDatabase.getInstance();
-        //  fReference=fDatabase.getReference("Users");
-        //  fDatabase = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/");
-
-     /*   final String[] xd = new String[1];
-      .addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-           @Override
-           public void onComplete(@NonNull Task<DataSnapshot> task) {
-              xd[0] = task.getResult().getValue().toString();
-              username.setText(xd[0]);
-           }
-       });*/
 
 
         join.startAnimation(rightfade);
         create.startAnimation(leftfade);
         logout.startAnimation(fade);
         logo.startAnimation(fade);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), Login.class));
-                finish();
-            }
+        logout.setOnClickListener(view -> {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(getApplicationContext(), Login.class));
+            finish();
         });
 
 
         fReference = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/").getReference("Users");
-        fReference.child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()) {
+        fReference.child(uid).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
 
-                    DataSnapshot snapshot = task.getResult();
-                    nick = String.valueOf(snapshot.child("Nickname").getValue());
-                    username.setText(nick);
+                DataSnapshot snapshot = task.getResult();
+                nick = String.valueOf(snapshot.child("Nickname").getValue());
+                username.setText(nick);
 
-                } else {
-                    Toast.makeText(HomeActivity.this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
-                }
+            } else {
+                Toast.makeText(HomeActivity.this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
             }
         });
 
         //ADMIN
-        create.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseDatabase database = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/");
-                //Game Info
-                DatabaseReference myRef = database.getReference("Rooms").child(nick + "1");
-                Map<String, Object> gameInfo = new HashMap<>();
-                gameInfo.put("Status", "pending");
-                gameInfo.put("NumberOfRounds", 0);
-                myRef.setValue(gameInfo);
+        create.setOnClickListener(view -> {
+            FirebaseDatabase database = FirebaseDatabase.getInstance("https://czyjatomelodia-f4d18-default-rtdb.europe-west1.firebasedatabase.app/");
+            //Game Info
+            DatabaseReference myRef = database.getReference("Rooms").child(nick + "1");
+            Map<String, Object> gameInfo = new HashMap<>();
+            gameInfo.put("Status", "pending");
+            gameInfo.put("NumberOfRounds", 0);
+            myRef.setValue(gameInfo);
 
-                //Player info
-                myRef = database.getReference("Rooms").child(nick + "1").child("Players").child(nick);
+            //Player info
+            myRef = database.getReference("Rooms").child(nick + "1").child("Players").child(nick);
 
 
-                Map<String, Object> playerInfo = new HashMap<>();
-                playerInfo.put("Score", 0);
-                playerInfo.put("isAdmin", "true");
-                playerInfo.put("songID", "null");
-                playerInfo.put("selected", "false");
-                playerInfo.put("songName", "null");
+            Map<String, Object> playerInfo = new HashMap<>();
+            playerInfo.put("Score", 0);
+            playerInfo.put("isAdmin", "true");
+            playerInfo.put("songID", "null");
+            playerInfo.put("selected", "false");
+            playerInfo.put("songName", "null");
 
 
-                myRef.setValue(playerInfo);
+            myRef.setValue(playerInfo);
 
-                startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", nick + 1)
-                        .putExtra("isAdmin", "true").putExtra("nickname", nick));
-                finish();
+            startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", nick + 1)
+                    .putExtra("isAdmin", "true").putExtra("nickname", nick));
+            finish();
 
 
-            }
         });
 
         join.setOnClickListener(new View.OnClickListener() {
@@ -181,46 +147,40 @@ public class HomeActivity extends BaseActivity implements JoinDialog.JoinDialogL
         if (!id.isEmpty()) {
 
 
-            myRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
+            myRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
 
 
-                        DataSnapshot snapshot = task.getResult();
+                    if (locationNames.contains(id)) {
+                        Map<String, Object> playerInfo = new HashMap<>();
+                        playerInfo.put("Score", 0);
+                        playerInfo.put("isAdmin", "false");
+                        playerInfo.put("songID", "null");
+                        playerInfo.put("songName", "null");
+                        playerInfo.put("selected", "false");
 
+                        myRef.child(id).child("Players").child(nick).setValue(playerInfo);
+                        try {
+                            startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", id)
+                                    .putExtra("isAdmin", "false").putExtra("nickname", nick));
+                            finish();
 
-                        if (locationNames.contains(id)) {
-                            Map<String, Object> playerInfo = new HashMap<>();
-                            playerInfo.put("Score", 0);
-                            playerInfo.put("isAdmin", "false");
-                            playerInfo.put("songID", "null");
-                            playerInfo.put("songName", "null");
-                            playerInfo.put("selected", "false");
+                        } catch (Exception e) {
 
-                            myRef.child(id).child("Players").child(nick).setValue(playerInfo);
-                            try {
-                                startActivity(new Intent(getApplicationContext(), PlayerList.class).putExtra("roomID", id)
-                                        .putExtra("isAdmin", "false").putExtra("nickname", nick));
-                                finish();
+                            Toast.makeText(HomeActivity.this, e.toString(), Toast.LENGTH_LONG).show();
 
-                            } catch (Exception e) {
-
-                                Toast.makeText(HomeActivity.this, e.toString(), Toast.LENGTH_LONG).show();
-
-                                e.printStackTrace();
-                            }
-
-
-                        } else {
-
-                            Toast.makeText(HomeActivity.this, "Pokój o danej nazwie nie istnieje!", Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
                         }
 
 
                     } else {
-                        Toast.makeText(HomeActivity.this, "Coś poszło nie tak", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(HomeActivity.this, "Pokój o danej nazwie nie istnieje!", Toast.LENGTH_LONG).show();
                     }
+
+
+                } else {
+                    Toast.makeText(HomeActivity.this, "Coś poszło nie tak", Toast.LENGTH_SHORT).show();
                 }
             });
 

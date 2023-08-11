@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyViewHolder extends RecyclerView.ViewHolder {
+public class SongViewHolder extends RecyclerView.ViewHolder {
 
 
 
@@ -48,7 +48,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
 
 
-    public MyViewHolder(@NonNull View itemView) {
+    public SongViewHolder(@NonNull View itemView) {
         super(itemView);
 
 

@@ -10,6 +10,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -25,8 +26,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -169,32 +168,29 @@ public class PlaySongActivity extends BaseActivity implements LifecycleObserver 
         });
 
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        back.setOnClickListener(v -> {
 
-                FirebaseManager.getInstance().checkVotesForOwner(roomID, new FirebaseManager.OnCheckVotesForOwnerCallback() {
-                    @Override
-                    public void onVotesChecked(boolean additionalPointAdded) {
-                        if (additionalPointAdded) {
-                            Log.e(TAG, "DODANO PUNKCIK ESSA");
-                        } else {
-                            Log.e(TAG, "NIKOMU SIE NIE UDALO ;P");
-                        }
-
+            FirebaseManager.getInstance().checkVotesForOwner(roomID, new FirebaseManager.OnCheckVotesForOwnerCallback() {
+                @Override
+                public void onVotesChecked(boolean additionalPointAdded) {
+                    if (additionalPointAdded) {
+                        Log.e(TAG, "DODANO PUNKCIK ESSA");
+                    } else {
+                        Log.e(TAG, "NIKOMU SIE NIE UDALO ;P");
                     }
 
-                    @Override
-                    public void onError(String errorMessage) {
-                        // Wystąpił błąd podczas sprawdzania głosów
-                        // Wykonaj odpowiednie działania w przypadku błędu
-                    }
-                });
+                }
 
-                finish();
+                @Override
+                public void onError(String errorMessage) {
+                    // Wystąpił błąd podczas sprawdzania głosów
+                    // Wykonaj odpowiednie działania w przypadku błędu
+                }
+            });
+
+            finish();
 
 
-            }
         });
 
 
@@ -357,12 +353,6 @@ public class PlaySongActivity extends BaseActivity implements LifecycleObserver 
         });
     }
 
-    public String removeLastChar(String str) {
-        if (str == null || str.isEmpty()) {
-            return "";
-        }
-        return str.substring(0, str.length() - 1);
-    }
 
     private void createRound(DatabaseReference roomReference, List<String> players) {
 
@@ -395,8 +385,6 @@ public class PlaySongActivity extends BaseActivity implements LifecycleObserver 
 
 
     }
-
-
 
 
 }

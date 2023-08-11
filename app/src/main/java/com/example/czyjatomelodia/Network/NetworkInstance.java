@@ -29,8 +29,8 @@ public class NetworkInstance {
         return  mInstance;
     }
 
-    public GetDatService getAPI(){
-        return retrofit.create(GetDatService.class);
+    public GetYouTubeDataService getAPI(){
+        return retrofit.create(GetYouTubeDataService.class);
     }
 
 

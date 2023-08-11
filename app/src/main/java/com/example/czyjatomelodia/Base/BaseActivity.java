@@ -23,7 +23,7 @@ public class BaseActivity extends AppCompatActivity {
     private static final long DOUBLE_CLICK_TIME_DELTA = 2000;
     private long lastClickTime = 0;
     private static List<Activity> activityList = new ArrayList<>();
-    public Animation fade, leftfade,rightfade;
+    public Animation fade, leftfade,rightfade,alpha;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,6 +33,7 @@ public class BaseActivity extends AppCompatActivity {
         leftfade = AnimationUtils.loadAnimation(this, R.anim.leftfade);
         rightfade = AnimationUtils.loadAnimation(this, R.anim.rightfade);
         fade = AnimationUtils.loadAnimation(this, R.anim.fadeanim);
+        alpha=AnimationUtils.loadAnimation(this, R.anim.alpha);
 
         activityList.add(this);
     }
