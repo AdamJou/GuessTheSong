@@ -6,7 +6,7 @@ GuessTheSong/CzyjaToMelodia
 
 <h1>Polish</h1>
 
-<section><h2>O aplikacji</h2> Aplikacja ta jest przeniesieniem rzeczywistej gry wieloosobowej, której głównym zamysłem jest odgadnięcię utworów pozostałych graczy</br>
+<section><h2>O aplikacji</h2> Aplikacja ta jest przeniesieniem do świata wirtualnego rzeczywistej gry wieloosobowej, której głównym zamysłem jest odgadnięcie utworów pozostałych graczy. W założeniu rozgrywka toczy się w jednym pomieszczeniu, gdzie to uczestnicy zamiast głosowania i zapisywania wyników na kartce papieru robią to bezpośrednio na swoim smartfonie.
 
 
 
@@ -23,15 +23,19 @@ nikt nie zagłosuje, że to Ty dałeś propozycję aktualnie odtwarzanego utworu
 </ol>
 
 
+![schemat](https://github.com/AdamJou/GuessTheSong/assets/101346105/e5f33271-9957-470f-8e78-b8d00fa8a8cc)
+
 
 
 <h3>Technologie</h3>
 
 <ul>
+<li>Java</li>
 <li>Firebase</li>
 <li>YouTube API</li>
 <li>Retrofit2</li>
-<li>Gson</li>
+<li>Material Design</li>
+<li><a href="https://github.com/PierfrancescoSoffritti/android-youtube-player">android-youtube-player</a></li>
 
 </ul>
 
@@ -46,7 +50,7 @@ nikt nie zagłosuje, że to Ty dałeś propozycję aktualnie odtwarzanego utworu
 
 ### Work in progress
 
-![](https://geps.dev/progress/90?dangerColor=800000&warningColor=ff9900&successColor=006600)
+![](https://geps.dev/progress/99?dangerColor=800000&warningColor=ff9900&successColor=006600)
 
 
 
